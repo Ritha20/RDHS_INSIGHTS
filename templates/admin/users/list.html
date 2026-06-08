@@ -24,7 +24,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for u in users %}
+                {% for u in page_obj %}
                 <tr>
                     <td><strong>{{ u.username }}</strong></td>
                     <td>{{ u.email }}</td>
@@ -55,5 +55,19 @@
             </tbody>
         </table>
     </div>
+
+    {% if page_obj.has_other_pages %}
+    <div style="display:flex;justify-content:center;gap:8px;padding:16px 0 4px;">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}" class="btn btn-ghost btn-sm">Previous</a>
+        {% endif %}
+        <span style="padding:6px 12px;font-size:0.85rem;color:var(--text-muted);">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}" class="btn btn-ghost btn-sm">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
