@@ -134,6 +134,12 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 10px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            transition: background 0.15s ease-in-out;
+        }
+        .user-chip:hover {
+            background: var(--primary-light);
         }
         .avatar {
             width: 34px;
@@ -463,62 +469,186 @@
             letter-spacing: 0.06em;
             color: var(--text-muted);
         }
+
+        /* ═══════════════════════════════════════════════
+           Sidebar — blue theme + collapsible rail
+           ═══════════════════════════════════════════════ */
+        :root { --sidebar-collapsed-width: 78px; }
+
+        .sidebar {
+            background: linear-gradient(180deg, #312E81 0%, #1E3A8A 55%, #1B3C74 100%);
+            border-right: 1px solid rgba(255,255,255,0.08);
+            transition: width 0.22s ease;
+        }
+        .main { transition: margin-left 0.22s ease; }
+
+        /* Brand / logo */
+        .sidebar-logo { border-bottom: 1px solid rgba(255,255,255,0.10); }
+        .sidebar-logo .brand {
+            color: #fff; background: none; -webkit-text-fill-color: #fff;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .sidebar-logo .sub { color: rgba(255,255,255,0.62); }
+        .brand-mark { display: none; }
+
+        /* Nav links */
+        .nav-section-label { color: rgba(255,255,255,0.5); opacity: 1; }
+        .nav-item { color: rgba(255,255,255,0.74); }
+        .nav-item:hover { background: rgba(255,255,255,0.12); color: #fff; }
+        .nav-item.active { background: rgba(255,255,255,0.16); color: #fff; box-shadow: inset 3px 0 0 #fff; }
+
+        /* Footer */
+        .sidebar-footer { border-top: 1px solid rgba(255,255,255,0.10); }
+        .user-chip:hover { background: rgba(255,255,255,0.10); }
+        .avatar { box-shadow: 0 0 0 2px rgba(255,255,255,0.18); }
+        .user-name { color: #fff; }
+        .user-role { color: rgba(255,255,255,0.6); }
+        .sidebar .btn-ghost { color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.22); background: transparent; }
+        .sidebar .btn-ghost:hover { background: rgba(255,255,255,0.12); color: #fff; border-color: rgba(255,255,255,0.42); }
+        .sidebar .logout-btn { color: #FCA5A5; border-color: rgba(255,255,255,0.22) !important; }
+        .sidebar .logout-btn:hover { background: rgba(239,68,68,0.22); color: #fff; }
+
+        /* Collapse toggle button (in topbar) */
+        .topbar-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+        .sidebar-toggle {
+            width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+            border: 1px solid var(--border-color); background: #fff; color: var(--text-main);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+        }
+        .sidebar-toggle:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+
+        /* ── Collapsed rail ── */
+        body.sidebar-collapsed .sidebar { width: var(--sidebar-collapsed-width); }
+        body.sidebar-collapsed .main { margin-left: var(--sidebar-collapsed-width); }
+        body.sidebar-collapsed .sidebar-logo { padding: 20px 0; text-align: center; }
+        body.sidebar-collapsed .sidebar-logo .brand { justify-content: center; gap: 0; }
+        body.sidebar-collapsed .brand-full,
+        body.sidebar-collapsed .sidebar-logo .sub,
+        body.sidebar-collapsed .nav-section-label,
+        body.sidebar-collapsed .nav-label,
+        body.sidebar-collapsed .user-meta,
+        body.sidebar-collapsed .btn-label { display: none; }
+        body.sidebar-collapsed .brand-mark {
+            display: inline-flex; width: 42px; height: 42px; border-radius: 12px;
+            background: rgba(255,255,255,0.16); color: #fff; font-family: 'Outfit', sans-serif;
+            font-weight: 800; font-size: 1.15rem; align-items: center; justify-content: center;
+        }
+        body.sidebar-collapsed .nav-section { padding: 14px 12px 4px; }
+        body.sidebar-collapsed .nav-item { justify-content: center; padding: 11px 0; }
+        body.sidebar-collapsed .user-chip { justify-content: center; padding: 6px 0; }
+        body.sidebar-collapsed .footer-actions { flex-direction: column; }
+        body.sidebar-collapsed .footer-actions .btn-ghost,
+        body.sidebar-collapsed .footer-actions .logout-btn { width: 100%; }
+
+        /* ── Mobile: slide-in overlay ── */
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.22s ease; z-index: 1001; }
+            body.sidebar-mobile-open .sidebar { transform: translateX(0); box-shadow: 0 0 40px rgba(0,0,0,0.3); }
+            .main { margin-left: 0 !important; }
+            body.sidebar-collapsed .sidebar { width: var(--sidebar-width); }
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- Restore collapsed state before paint to avoid flicker -->
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('rdhs_sidebar_collapsed') === '1' && window.innerWidth > 900) {
+                    document.body.classList.add('sidebar-collapsed');
+                }
+            } catch (e) {}
+        })();
+    </script>
+
     <!-- ── Sidebar ── -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="brand">RDHS Admin</div>
+            <div class="brand">
+                <span class="brand-mark">R</span>
+                <span class="brand-full">RDHS Admin</span>
+            </div>
             <div class="sub">Rwanda DHS Dashboard</div>
         </div>
 
         <div class="nav-section">
-            <a href="{% url 'admin_dashboard' %}"
+            {% if request.user.is_superuser %}
+            <a href="{% url 'admin_dashboard' %}" title="Dashboard"
                class="nav-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
-                <i class="fas fa-gauge-high"></i> Dashboard
+                <i class="fas fa-gauge-high"></i> <span class="nav-label">Dashboard</span>
             </a>
+            {% else %}
+            <a href="{% url 'analyst_dashboard' %}" title="Dashboard"
+               class="nav-item {% if request.resolver_match.url_name == 'analyst_dashboard' and 'report' not in request.GET %}active{% endif %}">
+                <i class="fas fa-gauge-high"></i> <span class="nav-label">Dashboard</span>
+            </a>
+            {% endif %}
         </div>
 
+        {% if not request.user.is_superuser %}
+        <div class="nav-section">
+            <div class="nav-section-label">Tools</div>
+            <a href="{% url 'report_builder' %}" title="Report Builder"
+               class="nav-item {% if request.resolver_match.url_name == 'report_builder' %}active{% endif %}">
+                <i class="fas fa-file-invoice"></i> <span class="nav-label">Report Builder</span>
+            </a>
+        </div>
+        {% endif %}
+
+        {% if request.user.is_superuser %}
         <div class="nav-section">
             <div class="nav-section-label">Datasets</div>
-            <a href="{% url 'admin_dataset_upload' %}"
+            <a href="{% url 'admin_dataset_upload' %}" title="Upload Datasets"
                class="nav-item {% if 'datasets' in request.path %}active{% endif %}">
-                <i class="fas fa-upload"></i> Upload Datasets
+                <i class="fas fa-upload"></i> <span class="nav-label">Upload Datasets</span>
             </a>
         </div>
 
         <div class="nav-section">
             <div class="nav-section-label">System</div>
-            <a href="{% url 'admin_user_list' %}"
+            <a href="{% url 'admin_user_list' %}" title="User Management"
                class="nav-item {% if 'users' in request.path %}active{% endif %}">
-                <i class="fas fa-users-cog"></i> User Management
+                <i class="fas fa-users-cog"></i> <span class="nav-label">User Management</span>
             </a>
-            <a href="{% url 'admin_audit_logs' %}"
+            <a href="{% url 'admin_audit_logs' %}" title="Audit Logs"
                class="nav-item {% if 'audit' in request.path %}active{% endif %}">
-                <i class="fas fa-shield-halved"></i> Audit Logs
+                <i class="fas fa-shield-halved"></i> <span class="nav-label">Audit Logs</span>
             </a>
         </div>
+        {% endif %}
 
         <div class="sidebar-footer">
-            <div class="user-chip">
-                <div class="avatar">{{ request.user.username|make_list|first|upper }}</div>
-                <div>
-                    <div class="user-name">{{ request.user.username }}</div>
-                    <div class="user-role">{% if request.user.is_superuser %}Super Admin{% else %}Admin{% endif %}</div>
+            <a href="{% url 'user_profile' %}" style="text-decoration: none;" title="{{ request.user.username }}">
+                <div class="user-chip">
+                    <div class="avatar">{{ request.user.username|make_list|first|upper }}</div>
+                    <div class="user-meta">
+                        <div class="user-name">{{ request.user.username }}</div>
+                        <div class="user-role">{% if request.user.is_superuser %}System Admin{% else %}Analyst{% endif %}</div>
+                    </div>
                 </div>
-            </div>
-            <a href="{% url 'admin_logout' %}" class="logout-btn">
-                <i class="fas fa-right-from-bracket"></i> Sign Out
             </a>
+            <div class="footer-actions" style="display:flex; justify-content:space-between; gap:10px; margin-top: 5px;">
+                <a href="{% url 'user_profile' %}" class="btn btn-ghost btn-sm" title="Profile" style="flex:1; justify-content:center; text-decoration:none; display:inline-flex;">
+                    <i class="fas fa-user-cog"></i> <span class="btn-label">Profile</span>
+                </a>
+                <a href="{% url 'admin_logout' %}" class="logout-btn" title="Sign Out" style="flex:1; justify-content:center; display:inline-flex; border: 1px solid var(--border-color); border-radius:10px;">
+                    <i class="fas fa-right-from-bracket"></i> <span class="btn-label">Sign Out</span>
+                </a>
+            </div>
         </div>
     </aside>
 
     <!-- ── Main Area ── -->
     <div class="main">
         <header class="topbar">
-            <h1 class="topbar-title">{% block header %}Dashboard{% endblock %}</h1>
+            <div class="topbar-left">
+                <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Collapse or expand sidebar" title="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="topbar-title">{% block header %}Dashboard{% endblock %}</h1>
+            </div>
             <div class="topbar-actions">{% block topbar_actions %}{% endblock %}</div>
         </header>
 
@@ -539,6 +669,18 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Collapse the desktop sidebar to a rail (persisted), or slide it in on mobile.
+        function toggleSidebar() {
+            if (window.innerWidth <= 900) {
+                document.body.classList.toggle('sidebar-mobile-open');
+            } else {
+                document.body.classList.remove('sidebar-mobile-open');
+                var collapsed = document.body.classList.toggle('sidebar-collapsed');
+                try { localStorage.setItem('rdhs_sidebar_collapsed', collapsed ? '1' : '0'); } catch (e) {}
+            }
+        }
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

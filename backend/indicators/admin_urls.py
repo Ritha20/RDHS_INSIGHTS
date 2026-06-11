@@ -8,6 +8,10 @@ urlpatterns = [
 
     # ── Dashboard ──────────────────────────────────
     path('', admin_views.admin_dashboard_view, name='admin_dashboard'),
+    path('analyst/', admin_views.analyst_dashboard_view, name='analyst_dashboard'),
+    path('report-builder/', admin_views.report_builder_view, name='report_builder'),
+    path('profile/', admin_views.user_profile_view, name='user_profile'),
+    path('geojson/', admin_views.geojson_view, name='admin_geojson'),
 
     # ── Dataset Upload ─────────────────────────────
     path('datasets/',              admin_views.dataset_upload_view, name='admin_dataset_upload'),

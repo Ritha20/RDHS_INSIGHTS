@@ -31,11 +31,11 @@
                     <td>{{ u.first_name }} {{ u.last_name }}</td>
                     <td>
                         {% if u.is_superuser %}
-                            <span class="badge" style="background:var(--red);color:white;">Superuser</span>
+                            <span class="badge badge-red">System Admin</span>
                         {% elif u.is_staff %}
-                            <span class="badge" style="background:var(--blue);color:white;">Admin</span>
+                            <span class="badge badge-blue">Analyst</span>
                         {% else %}
-                            <span class="badge">User</span>
+                            <span class="badge badge-gray">User</span>
                         {% endif %}
                     </td>
                     <td>

@@ -1,5 +1,6 @@
 import os
-
+import json
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -19,6 +20,10 @@ from .models import (
 # ─────────────────────────────────────────────────
 
 def admin_required(user):
+    return user.is_authenticated and user.is_superuser
+
+
+def analyst_required(user):
     return user.is_authenticated and (user.is_staff or user.is_superuser)
 
 
@@ -60,8 +65,11 @@ def identify_recode(filename):
 # ─────────────────────────────────────────────────
 
 def admin_login_view(request):
-    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
-        return redirect('admin_dashboard')
+    if request.user.is_authenticated:
+        if request.user.is_superuser:
+            return redirect('admin_dashboard')
+        elif request.user.is_staff:
+            return redirect('analyst_dashboard')
 
     context = {}
     if request.method == 'POST':
@@ -70,12 +78,15 @@ def admin_login_view(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            if user.is_staff or user.is_superuser:
+            if user.is_active and user.is_staff:
                 login(request, user)
-                audit(request, 'LOGIN', f'Admin login: {username}')
-                return redirect(request.GET.get('next', 'admin_dashboard'))
+                audit(request, 'LOGIN', f'User login: {username}')
+                if user.is_superuser:
+                    return redirect(request.GET.get('next', 'admin_dashboard'))
+                else:
+                    return redirect(request.GET.get('next', 'analyst_dashboard'))
             else:
-                context['error_message'] = "Access denied. Admin privileges required."
+                context['error_message'] = "Access denied. Active staff/admin privileges required."
         else:
             context['error_message'] = "Invalid username or password."
 
@@ -83,7 +94,8 @@ def admin_login_view(request):
 
 
 def admin_logout_view(request):
-    audit(request, 'LOGOUT', f'Admin logout: {request.user.username}')
+    if request.user.is_authenticated:
+        audit(request, 'LOGOUT', f'User logout: {request.user.username}')
     logout(request)
     return redirect('admin_login')
 
@@ -110,6 +122,64 @@ def admin_dashboard_view(request):
         'recent_logs': recent_logs,
     }
     return render(request, 'admin/dashboard.html', context)
+
+
+@user_passes_test(analyst_required, login_url='admin_login')
+def analyst_dashboard_view(request):
+    context = {
+        'total_categories': Category.objects.count(),
+        'total_indicators': Indicator.objects.count(),
+        'total_values': IndicatorValue.objects.count(),
+        'total_districts': District.objects.filter(
+            level=District.DISTRICT,
+            indicator_values__isnull=False,
+        ).distinct().count(),
+    }
+    return render(request, 'admin/analyst_dashboard.html', context)
+
+
+@user_passes_test(analyst_required, login_url='admin_login')
+def report_builder_view(request):
+    """
+    Dedicated report design workspace (Google Docs-style canvas with a live
+    indicator library on the left and a properties panel on the right).
+    """
+    audit(request, 'OTHER', 'Opened Report Builder workspace')
+    return render(request, 'admin/report_builder.html', {})
+
+
+@user_passes_test(analyst_required, login_url='admin_login')
+def user_profile_view(request):
+    u = request.user
+    if request.method == 'POST':
+        u.email = request.POST.get('email', '').strip()
+        u.first_name = request.POST.get('first_name', '').strip()
+        u.last_name = request.POST.get('last_name', '').strip()
+        password = request.POST.get('password', '').strip()
+        if password:
+            u.set_password(password)
+        u.save()
+
+        if password:
+            from django.contrib.auth import update_session_auth_hash
+            update_session_auth_hash(request, u)
+
+        audit(request, 'USER_UPDATE', f"Updated own profile: {u.username}")
+        messages.success(request, "Your profile has been updated successfully.")
+        return redirect('user_profile')
+
+    return render(request, 'admin/users/profile.html', {
+        'title': 'My Profile',
+        'u': u,
+    })
+
+
+@user_passes_test(analyst_required, login_url='admin_login')
+def geojson_view(request):
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'frontend', 'public', 'rwanda-districts.geojson'))
+    with open(path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    return JsonResponse(data)
 
 
 # ─────────────────────────────────────────────────
@@ -261,7 +331,7 @@ def user_create_view(request):
         password   = request.POST.get('password', '')
         first_name = request.POST.get('first_name', '').strip()
         last_name  = request.POST.get('last_name', '').strip()
-        is_staff   = 'is_staff' in request.POST
+        role       = request.POST.get('role', 'analyst')
         is_active  = 'is_active' in request.POST
 
         if not all([username, email, first_name, last_name, password]):
@@ -272,14 +342,17 @@ def user_create_view(request):
             messages.error(request, f"Username '{username}' already exists.")
             return render(request, 'admin/users/form.html', {'title': 'Create User'})
 
+        is_staff = True
+        is_superuser = (role == 'admin')
+
         user = User.objects.create_user(
             username=username, email=email, password=password,
             first_name=first_name, last_name=last_name,
-            is_staff=is_staff, is_superuser=is_staff,
+            is_staff=is_staff, is_superuser=is_superuser,
             is_active=is_active,
         )
 
-        audit(request, 'USER_CREATE', f"Created user: {username}")
+        audit(request, 'USER_CREATE', f"Created user: {username} (Role: {role})")
         messages.success(request, f"User '{username}' created successfully.")
         return redirect('admin_user_list')
 
@@ -293,15 +366,16 @@ def user_edit_view(request, pk):
         u.email      = request.POST.get('email', '').strip()
         u.first_name = request.POST.get('first_name', '').strip()
         u.last_name  = request.POST.get('last_name', '').strip()
-        u.is_staff   = 'is_staff' in request.POST
-        u.is_superuser = u.is_staff
+        role         = request.POST.get('role', 'analyst')
+        u.is_staff   = True
+        u.is_superuser = (role == 'admin')
         u.is_active  = 'is_active' in request.POST
         password = request.POST.get('password', '').strip()
         if password:
             u.set_password(password)
         u.save()
 
-        audit(request, 'USER_UPDATE', f"Updated user: {u.username}")
+        audit(request, 'USER_UPDATE', f"Updated user: {u.username} (Role: {role})")
         messages.success(request, f"User '{u.username}' updated.")
         return redirect('admin_user_list')
 
