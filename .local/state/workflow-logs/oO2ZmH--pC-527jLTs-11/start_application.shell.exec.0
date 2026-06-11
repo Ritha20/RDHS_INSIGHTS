@@ -1,0 +1,22 @@
+
+> dhs-rwanda-dashboard@0.1.0 dev
+> next dev -p 5000 --hostname 0.0.0.0
+
+[1G[0K   [1m[38;2;173;127;168m▲ Next.js 15.5.19[39m[22m
+   - Local:        http://localhost:5000
+   - Network:      http://0.0.0.0:5000
+   - Environments: .env.local
+
+ [32m[1m✓[22m[39m Starting...
+ [32m[1m✓[22m[39m Ready in 2.1s
+ [37m[1m○[22m[39m Compiling / ...
+ [32m[1m✓[22m[39m Compiled / in 4.2s (2513 modules)
+ GET / [32m200[39m in 4975ms
+ [33m[1m⚠[22m[39m Found a change in next.config.ts. Restarting the server to apply the changes...
+   [1m[38;2;173;127;168m▲ Next.js 15.5.19[39m[22m
+   - Local:        http://localhost:5000
+   - Network:      http://0.0.0.0:5000
+   - Environments: .env.local
+
+ [32m[1m✓[22m[39m Starting...
+ [32m[1m✓[22m[39m Ready in 1753ms

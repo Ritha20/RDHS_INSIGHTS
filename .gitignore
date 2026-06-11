@@ -1,0 +1,42 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.DTA
+*.dta
+
+# Jupyter notebooks
+*.ipynb
+*.ipynb_checkpoints/
+
+# Node / Next.js
+node_modules/
+frontend/node_modules/
+frontend/.next/
+dist/
+build/
+.next/
+
+# Misc
+.DS_Store
+.env
+
+
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.DS_Store
+.vscode/
+.idea/
+*.log
+venv/
+.venv/
+env/
+.gemini/
+scratch/
+walkthrough.md
+task.md
+implementation_plan.md

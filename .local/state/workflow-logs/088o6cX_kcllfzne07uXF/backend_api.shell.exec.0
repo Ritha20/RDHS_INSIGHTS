@@ -1,0 +1,622 @@
+2026-06-09 20:50:09,646 INFO     Starting server at tcp:port=8000:interface=127.0.0.1
+2026-06-09 20:50:09,647 INFO     HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-06-09 20:50:09,647 INFO     Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-06-09 20:50:09,649 INFO     Listening on TCP address 127.0.0.1:8000
+127.0.0.1:52716 - - [09/Jun/2026:20:50:19] "GET /api/chapter3/fertility-rate" 200 5654
+127.0.0.1:52726 - - [09/Jun/2026:20:50:19] "GET /api/chapter7/stunting" 200 5812
+127.0.0.1:52740 - - [09/Jun/2026:20:50:19] "GET /api/chapter8/malaria-prevalence-children" 200 5320
+127.0.0.1:52750 - - [09/Jun/2026:20:50:19] "GET /api/chapter1/household-assets?asset=electricity" 200 5072
+127.0.0.1:52764 - - [09/Jun/2026:20:50:19] "GET /api/chapter4/contraception-use" 200 5233
+127.0.0.1:52774 - - [09/Jun/2026:20:50:20] "GET /api/chapter3/fertility-rate?rate_type=observed&region=1" 200 989
+127.0.0.1:52782 - - [09/Jun/2026:20:50:20] "GET /api/chapter3/fertility-rate?rate_type=observed&region=2" 200 1656
+127.0.0.1:52794 - - [09/Jun/2026:20:50:20] "GET /api/chapter3/fertility-rate?rate_type=observed&region=3" 200 1535
+127.0.0.1:52800 - - [09/Jun/2026:20:50:20] "GET /api/chapter3/fertility-rate?rate_type=observed&region=4" 200 1269
+127.0.0.1:52812 - - [09/Jun/2026:20:50:20] "GET /api/chapter3/fertility-rate?rate_type=observed&region=5" 200 1534
+127.0.0.1:43778 - - [09/Jun/2026:20:51:12] "GET /api/chapter7/stunting?severity=any&region=1" 200 982
+127.0.0.1:43788 - - [09/Jun/2026:20:51:12] "GET /api/chapter7/stunting?severity=any&region=2" 200 1675
+127.0.0.1:43804 - - [09/Jun/2026:20:51:12] "GET /api/chapter7/stunting?severity=any&region=3" 200 1548
+127.0.0.1:43810 - - [09/Jun/2026:20:51:12] "GET /api/chapter7/stunting?severity=any&region=4" 200 1272
+127.0.0.1:43812 - - [09/Jun/2026:20:51:12] "GET /api/chapter7/stunting?severity=any&region=5" 200 1547
+127.0.0.1:50846 - - [09/Jun/2026:20:51:16] "GET /api/chapter2/health-insurance" 200 5070
+127.0.0.1:50854 - - [09/Jun/2026:20:51:17] "GET /api/chapter5/antenatal-care" 200 5057
+127.0.0.1:50868 - - [09/Jun/2026:20:51:17] "GET /api/chapter9/hiv-knowledge-comprehensive" 200 5083
+127.0.0.1:50880 - - [09/Jun/2026:20:51:17] "GET /api/chapter10/decision-making" 200 5054
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:04,361 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:32788 - - [09/Jun/2026:20:57:04] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+Not Found: /chapter5/delivery-assistance
+2026-06-09 20:57:04,366 WARNING  Not Found: /chapter5/delivery-assistance
+127.0.0.1:32794 - - [09/Jun/2026:20:57:04] "GET /chapter5/delivery-assistance?provider=skilled&region=1" 404 2693
+Not Found: /chapter4/contraception-use
+2026-06-09 20:57:04,389 WARNING  Not Found: /chapter4/contraception-use
+Not Found: /chapter7/stunting
+2026-06-09 20:57:04,389 WARNING  Not Found: /chapter7/stunting
+127.0.0.1:32808 - - [09/Jun/2026:20:57:04] "GET /chapter4/contraception-use?method=modern&marital_status=married&region=1" 404 2711
+127.0.0.1:32798 - - [09/Jun/2026:20:57:04] "GET /chapter7/stunting?severity=any&region=1" 404 2656
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:04,396 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:32818 - - [09/Jun/2026:20:57:04] "GET /chapter3/fertility-rate?rate_type=observed&region=2" 404 2680
+Not Found: /chapter9/hiv-testing
+2026-06-09 20:57:04,406 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:32828 - - [09/Jun/2026:20:57:04] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=1" 404 2682
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:04,800 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:32834 - - [09/Jun/2026:20:57:04] "GET /chapter3/fertility-rate?rate_type=observed&region=3" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:04,813 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:32848 - - [09/Jun/2026:20:57:04] "GET /chapter3/fertility-rate?rate_type=observed&region=4" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:04,836 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:32858 - - [09/Jun/2026:20:57:04] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:04,847 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:32862 - - [09/Jun/2026:20:57:04] "GET /chapter3/fertility-rate?rate_type=observed&region=5" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:06,120 WARNING  Not Found: /chapter3/fertility-rate
+Not Found: /chapter4/contraception-use
+2026-06-09 20:57:06,121 WARNING  Not Found: /chapter4/contraception-use
+127.0.0.1:32882 - - [09/Jun/2026:20:57:06] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+Not Found: /chapter7/stunting
+2026-06-09 20:57:06,121 WARNING  Not Found: /chapter7/stunting
+127.0.0.1:32886 - - [09/Jun/2026:20:57:06] "GET /chapter4/contraception-use?method=modern&marital_status=married&region=1" 404 2711
+Not Found: /chapter5/delivery-assistance
+2026-06-09 20:57:06,121 WARNING  Not Found: /chapter5/delivery-assistance
+127.0.0.1:32870 - - [09/Jun/2026:20:57:06] "GET /chapter7/stunting?severity=any&region=1" 404 2656
+127.0.0.1:32900 - - [09/Jun/2026:20:57:06] "GET /chapter5/delivery-assistance?provider=skilled&region=1" 404 2693
+Not Found: /chapter9/hiv-testing
+2026-06-09 20:57:06,134 WARNING  Not Found: /chapter9/hiv-testing
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:06,134 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:32904 - - [09/Jun/2026:20:57:06] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=1" 404 2682
+127.0.0.1:32920 - - [09/Jun/2026:20:57:06] "GET /chapter3/fertility-rate?rate_type=observed&region=2" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:06,573 WARNING  Not Found: /chapter3/fertility-rate
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:06,573 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49696 - - [09/Jun/2026:20:57:06] "GET /chapter3/fertility-rate?rate_type=observed&region=5" 404 2680
+127.0.0.1:49688 - - [09/Jun/2026:20:57:06] "GET /chapter3/fertility-rate?rate_type=observed&region=3" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:06,580 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49712 - - [09/Jun/2026:20:57:06] "GET /chapter3/fertility-rate?rate_type=observed&region=4" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:06,586 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49724 - - [09/Jun/2026:20:57:06] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:09,805 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49740 - - [09/Jun/2026:20:57:09] "GET /chapter3/fertility-rate?rate_type=observed&region=2" 404 2680
+Not Found: /chapter7/stunting
+2026-06-09 20:57:09,811 WARNING  Not Found: /chapter7/stunting
+127.0.0.1:49744 - - [09/Jun/2026:20:57:09] "GET /chapter7/stunting?severity=any&region=1" 404 2656
+Not Found: /chapter4/contraception-use
+2026-06-09 20:57:10,771 WARNING  Not Found: /chapter4/contraception-use
+127.0.0.1:49758 - - [09/Jun/2026:20:57:10] "GET /chapter4/contraception-use?method=modern&marital_status=married&region=1" 404 2711
+Not Found: /chapter5/delivery-assistance
+2026-06-09 20:57:10,845 WARNING  Not Found: /chapter5/delivery-assistance
+127.0.0.1:49760 - - [09/Jun/2026:20:57:10] "GET /chapter5/delivery-assistance?provider=skilled&region=1" 404 2693
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:11,320 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49774 - - [09/Jun/2026:20:57:11] "GET /chapter3/fertility-rate?rate_type=observed&region=3" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:11,511 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49786 - - [09/Jun/2026:20:57:11] "GET /chapter3/fertility-rate?rate_type=observed&region=5" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:11,739 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49800 - - [09/Jun/2026:20:57:11] "GET /chapter3/fertility-rate?rate_type=observed&region=4" 404 2680
+Not Found: /chapter9/hiv-testing
+2026-06-09 20:57:12,607 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:49812 - - [09/Jun/2026:20:57:12] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=1" 404 2682
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:12,617 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49824 - - [09/Jun/2026:20:57:12] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:57:13,229 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49826 - - [09/Jun/2026:20:57:13] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+127.0.0.1:58068 - - [09/Jun/2026:20:58:32] "GET /api/chapter1/household-assets?asset=electricity&region=1" 200 882
+127.0.0.1:58070 - - [09/Jun/2026:20:58:32] "GET /api/chapter1/household-assets?asset=electricity&region=2" 200 1475
+127.0.0.1:58074 - - [09/Jun/2026:20:58:32] "GET /api/chapter1/household-assets?asset=electricity&region=3" 200 1368
+127.0.0.1:58088 - - [09/Jun/2026:20:58:32] "GET /api/chapter1/household-assets?asset=electricity&region=4" 200 1132
+127.0.0.1:58104 - - [09/Jun/2026:20:58:32] "GET /api/chapter1/household-assets?asset=electricity&region=5" 200 1367
+127.0.0.1:59998 - - [09/Jun/2026:20:59:18] "GET /api/chapter1/household-assets?asset=electricity&region=1" 200 882
+127.0.0.1:60010 - - [09/Jun/2026:20:59:18] "GET /api/chapter1/household-assets?asset=electricity&region=2" 200 1475
+127.0.0.1:60026 - - [09/Jun/2026:20:59:18] "GET /api/chapter1/household-assets?asset=electricity&region=3" 200 1368
+127.0.0.1:60036 - - [09/Jun/2026:20:59:18] "GET /api/chapter1/household-assets?asset=electricity&region=4" 200 1132
+127.0.0.1:60048 - - [09/Jun/2026:20:59:18] "GET /api/chapter1/household-assets?asset=electricity&region=5" 200 1367
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:33,289 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:48972 - - [09/Jun/2026:21:00:33] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+Not Found: /chapter5/delivery-assistance
+2026-06-09 21:00:33,296 WARNING  Not Found: /chapter5/delivery-assistance
+Not Found: /chapter4/contraception-use
+2026-06-09 21:00:33,296 WARNING  Not Found: /chapter4/contraception-use
+127.0.0.1:48980 - - [09/Jun/2026:21:00:33] "GET /chapter5/delivery-assistance?provider=skilled&region=1" 404 2693
+Not Found: /chapter7/stunting
+2026-06-09 21:00:33,296 WARNING  Not Found: /chapter7/stunting
+127.0.0.1:48992 - - [09/Jun/2026:21:00:33] "GET /chapter4/contraception-use?method=modern&marital_status=married&region=1" 404 2711
+127.0.0.1:48986 - - [09/Jun/2026:21:00:33] "GET /chapter7/stunting?severity=any&region=1" 404 2656
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:33,774 WARNING  Not Found: /chapter3/fertility-rate
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:00:33,774 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:49000 - - [09/Jun/2026:21:00:33] "GET /chapter3/fertility-rate?rate_type=observed&region=2" 404 2680
+Not Found: /chapter3/fertility-rate
+127.0.0.1:49022 - - [09/Jun/2026:21:00:33] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=1" 404 2682
+2026-06-09 21:00:33,777 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49016 - - [09/Jun/2026:21:00:33] "GET /chapter3/fertility-rate?rate_type=observed&region=3" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:33,782 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49036 - - [09/Jun/2026:21:00:33] "GET /chapter3/fertility-rate?rate_type=observed&region=4" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:34,353 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49042 - - [09/Jun/2026:21:00:34] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:34,359 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49050 - - [09/Jun/2026:21:00:34] "GET /chapter3/fertility-rate?rate_type=observed&region=5" 404 2680
+Not Found: /chapter7/stunting
+2026-06-09 21:00:34,782 WARNING  Not Found: /chapter7/stunting
+127.0.0.1:49060 - - [09/Jun/2026:21:00:34] "GET /chapter7/stunting?severity=any&region=1" 404 2656
+Not Found: /chapter5/delivery-assistance
+2026-06-09 21:00:34,791 WARNING  Not Found: /chapter5/delivery-assistance
+127.0.0.1:49062 - - [09/Jun/2026:21:00:34] "GET /chapter5/delivery-assistance?provider=skilled&region=1" 404 2693
+Not Found: /chapter4/contraception-use
+2026-06-09 21:00:35,422 WARNING  Not Found: /chapter4/contraception-use
+127.0.0.1:49070 - - [09/Jun/2026:21:00:35] "GET /chapter4/contraception-use?method=modern&marital_status=married&region=1" 404 2711
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:00:35,437 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:49072 - - [09/Jun/2026:21:00:35] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=1" 404 2682
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:35,446 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49074 - - [09/Jun/2026:21:00:35] "GET /chapter3/fertility-rate?rate_type=observed&region=4" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:35,447 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49082 - - [09/Jun/2026:21:00:35] "GET /chapter3/fertility-rate?rate_type=observed&region=3" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:35,510 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49090 - - [09/Jun/2026:21:00:35] "GET /chapter3/fertility-rate?rate_type=observed&region=2" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:35,516 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49094 - - [09/Jun/2026:21:00:35] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:36,450 WARNING  Not Found: /chapter3/fertility-rate
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:36,450 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:49108 - - [09/Jun/2026:21:00:36] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+127.0.0.1:49118 - - [09/Jun/2026:21:00:36] "GET /chapter3/fertility-rate?rate_type=observed&region=5" 404 2680
+Not Found: /chapter7/stunting
+2026-06-09 21:00:37,546 WARNING  Not Found: /chapter7/stunting
+Not Found: /chapter5/delivery-assistance
+2026-06-09 21:00:37,546 WARNING  Not Found: /chapter5/delivery-assistance
+127.0.0.1:40746 - - [09/Jun/2026:21:00:37] "GET /chapter7/stunting?severity=any&region=1" 404 2656
+127.0.0.1:40748 - - [09/Jun/2026:21:00:37] "GET /chapter5/delivery-assistance?provider=skilled&region=1" 404 2693
+Not Found: /chapter4/contraception-use
+2026-06-09 21:00:38,354 WARNING  Not Found: /chapter4/contraception-use
+127.0.0.1:40752 - - [09/Jun/2026:21:00:38] "GET /chapter4/contraception-use?method=modern&marital_status=married&region=1" 404 2711
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:38,368 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:40758 - - [09/Jun/2026:21:00:38] "GET /chapter3/fertility-rate?rate_type=observed&region=3" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:38,381 WARNING  Not Found: /chapter3/fertility-rate
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:00:38,381 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:40774 - - [09/Jun/2026:21:00:38] "GET /chapter3/fertility-rate?rate_type=observed&region=4" 404 2680
+127.0.0.1:40772 - - [09/Jun/2026:21:00:38] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=1" 404 2682
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:38,662 WARNING  Not Found: /chapter3/fertility-rate
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:38,662 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:40792 - - [09/Jun/2026:21:00:38] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+127.0.0.1:40778 - - [09/Jun/2026:21:00:38] "GET /chapter3/fertility-rate?rate_type=observed&region=2" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:39,470 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:40800 - - [09/Jun/2026:21:00:39] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 21:00:39,475 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:40812 - - [09/Jun/2026:21:00:39] "GET /chapter3/fertility-rate?rate_type=observed&region=5" 404 2680
+127.0.0.1:42520 - - [09/Jun/2026:21:01:29] "GET /api/chapter9/hiv-knowledge-comprehensive?gender=female&region=1" 200 893
+127.0.0.1:42524 - - [09/Jun/2026:21:01:29] "GET /api/chapter9/hiv-knowledge-comprehensive?gender=female&region=2" 200 1486
+127.0.0.1:42528 - - [09/Jun/2026:21:01:29] "GET /api/chapter9/hiv-knowledge-comprehensive?gender=female&region=3" 200 1379
+127.0.0.1:42544 - - [09/Jun/2026:21:01:29] "GET /api/chapter9/hiv-knowledge-comprehensive?gender=female&region=4" 200 1143
+127.0.0.1:42560 - - [09/Jun/2026:21:01:29] "GET /api/chapter9/hiv-knowledge-comprehensive?gender=female&region=5" 200 1378
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:42,070 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:42,070 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42542 - - [09/Jun/2026:21:01:42] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=2" 404 2712
+127.0.0.1:42538 - - [09/Jun/2026:21:01:42] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=1" 404 2712
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:42,080 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42554 - - [09/Jun/2026:21:01:42] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=3" 404 2712
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:42,082 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42560 - - [09/Jun/2026:21:01:42] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=5" 404 2712
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:42,088 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42576 - - [09/Jun/2026:21:01:42] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=4" 404 2712
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:43,773 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42586 - - [09/Jun/2026:21:01:43] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=1" 404 2712
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:43,797 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42602 - - [09/Jun/2026:21:01:43] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=3" 404 2712
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:43,800 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42610 - - [09/Jun/2026:21:01:43] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=5" 404 2712
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:43,816 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42636 - - [09/Jun/2026:21:01:43] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=4" 404 2712
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:43,817 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42622 - - [09/Jun/2026:21:01:43] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=2" 404 2712
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:46,284 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42638 - - [09/Jun/2026:21:01:46] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=1" 404 2712
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:46,312 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42648 - - [09/Jun/2026:21:01:46] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=4" 404 2712
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:46,318 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42664 - - [09/Jun/2026:21:01:46] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=3" 404 2712
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:46,323 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42678 - - [09/Jun/2026:21:01:46] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=5" 404 2712
+Not Found: /chapter9/hiv-knowledge-comprehensive
+2026-06-09 21:01:46,330 WARNING  Not Found: /chapter9/hiv-knowledge-comprehensive
+127.0.0.1:42682 - - [09/Jun/2026:21:01:46] "GET /chapter9/hiv-knowledge-comprehensive?gender=male&region=2" 404 2712
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:53,424 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:43492 - - [09/Jun/2026:21:01:53] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=2" 404 2682
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:53,444 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:43500 - - [09/Jun/2026:21:01:53] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=3" 404 2682
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:53,458 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:43514 - - [09/Jun/2026:21:01:53] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=1" 404 2682
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:53,475 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:43528 - - [09/Jun/2026:21:01:53] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=4" 404 2682
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:53,481 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:43544 - - [09/Jun/2026:21:01:53] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=5" 404 2682
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:54,969 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:43554 - - [09/Jun/2026:21:01:54] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=2" 404 2682
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:54,979 WARNING  Not Found: /chapter9/hiv-testing
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:54,982 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:43570 - - [09/Jun/2026:21:01:54] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=1" 404 2682
+127.0.0.1:43582 - - [09/Jun/2026:21:01:54] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=3" 404 2682
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:54,985 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:43586 - - [09/Jun/2026:21:01:54] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=4" 404 2682
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:54,992 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:43596 - - [09/Jun/2026:21:01:54] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=5" 404 2682
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:57,492 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:55382 - - [09/Jun/2026:21:01:57] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=1" 404 2682
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:57,502 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:55390 - - [09/Jun/2026:21:01:57] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=2" 404 2682
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:57,513 WARNING  Not Found: /chapter9/hiv-testing
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:57,514 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:55418 - - [09/Jun/2026:21:01:57] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=5" 404 2682
+127.0.0.1:55402 - - [09/Jun/2026:21:01:57] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=3" 404 2682
+Not Found: /chapter9/hiv-testing
+2026-06-09 21:01:57,519 WARNING  Not Found: /chapter9/hiv-testing
+127.0.0.1:55426 - - [09/Jun/2026:21:01:57] "GET /chapter9/hiv-testing?gender=female&timing=ever&region=4" 404 2682
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:01,999 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:02,000 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+127.0.0.1:55444 - - [09/Jun/2026:21:02:02] "GET /chapter9/condom-use-multiple-partners?gender=male&region=3" 404 2715
+127.0.0.1:55442 - - [09/Jun/2026:21:02:02] "GET /chapter9/condom-use-multiple-partners?gender=male&region=1" 404 2715
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:02,015 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:02,017 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:02,017 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+127.0.0.1:55462 - - [09/Jun/2026:21:02:02] "GET /chapter9/condom-use-multiple-partners?gender=male&region=4" 404 2715
+127.0.0.1:55450 - - [09/Jun/2026:21:02:02] "GET /chapter9/condom-use-multiple-partners?gender=male&region=2" 404 2715
+127.0.0.1:55472 - - [09/Jun/2026:21:02:02] "GET /chapter9/condom-use-multiple-partners?gender=male&region=5" 404 2715
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:03,506 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+127.0.0.1:55484 - - [09/Jun/2026:21:02:03] "GET /chapter9/condom-use-multiple-partners?gender=male&region=1" 404 2715
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:03,517 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:03,517 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+127.0.0.1:55486 - - [09/Jun/2026:21:02:03] "GET /chapter9/condom-use-multiple-partners?gender=male&region=3" 404 2715
+127.0.0.1:55488 - - [09/Jun/2026:21:02:03] "GET /chapter9/condom-use-multiple-partners?gender=male&region=5" 404 2715
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:03,526 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+Not Found: /chapter9/condom-use-multiple-partners
+127.0.0.1:55502 - - [09/Jun/2026:21:02:03] "GET /chapter9/condom-use-multiple-partners?gender=male&region=2" 404 2715
+2026-06-09 21:02:03,526 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+127.0.0.1:55498 - - [09/Jun/2026:21:02:03] "GET /chapter9/condom-use-multiple-partners?gender=male&region=4" 404 2715
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:06,032 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+127.0.0.1:55518 - - [09/Jun/2026:21:02:06] "GET /chapter9/condom-use-multiple-partners?gender=male&region=2" 404 2715
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:06,033 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+127.0.0.1:55522 - - [09/Jun/2026:21:02:06] "GET /chapter9/condom-use-multiple-partners?gender=male&region=5" 404 2715
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:06,045 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:06,047 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+127.0.0.1:55524 - - [09/Jun/2026:21:02:06] "GET /chapter9/condom-use-multiple-partners?gender=male&region=1" 404 2715
+127.0.0.1:55530 - - [09/Jun/2026:21:02:06] "GET /chapter9/condom-use-multiple-partners?gender=male&region=3" 404 2715
+Not Found: /chapter9/condom-use-multiple-partners
+2026-06-09 21:02:06,053 WARNING  Not Found: /chapter9/condom-use-multiple-partners
+127.0.0.1:55546 - - [09/Jun/2026:21:02:06] "GET /chapter9/condom-use-multiple-partners?gender=male&region=4" 404 2715
+127.0.0.1:56514 - - [09/Jun/2026:21:02:12] "GET /api/chapter10/decision-making?decision_type=all_three&region=1" 200 864
+127.0.0.1:56530 - - [09/Jun/2026:21:02:12] "GET /api/chapter10/decision-making?decision_type=all_three&region=2" 200 1457
+127.0.0.1:56546 - - [09/Jun/2026:21:02:12] "GET /api/chapter10/decision-making?decision_type=all_three&region=3" 200 1350
+127.0.0.1:56562 - - [09/Jun/2026:21:02:12] "GET /api/chapter10/decision-making?decision_type=all_three&region=4" 200 1114
+127.0.0.1:56564 - - [09/Jun/2026:21:02:12] "GET /api/chapter10/decision-making?decision_type=all_three&region=5" 200 1349
+127.0.0.1:37108 - - [09/Jun/2026:21:02:18] "GET /api/chapter9/hiv-knowledge-comprehensive?gender=female&region=1" 200 893
+127.0.0.1:37116 - - [09/Jun/2026:21:02:18] "GET /api/chapter9/hiv-knowledge-comprehensive?gender=female&region=2" 200 1486
+127.0.0.1:37122 - - [09/Jun/2026:21:02:18] "GET /api/chapter9/hiv-knowledge-comprehensive?gender=female&region=3" 200 1379
+127.0.0.1:37124 - - [09/Jun/2026:21:02:18] "GET /api/chapter9/hiv-knowledge-comprehensive?gender=female&region=4" 200 1143
+127.0.0.1:37126 - - [09/Jun/2026:21:02:18] "GET /api/chapter9/hiv-knowledge-comprehensive?gender=female&region=5" 200 1378
+127.0.0.1:37136 - - [09/Jun/2026:21:02:24] "GET /api/chapter8/itn-ownership?region=1" 200 848
+127.0.0.1:37152 - - [09/Jun/2026:21:02:24] "GET /api/chapter8/itn-ownership?region=2" 200 1441
+127.0.0.1:37156 - - [09/Jun/2026:21:02:24] "GET /api/chapter8/itn-ownership?region=3" 200 1334
+127.0.0.1:37166 - - [09/Jun/2026:21:02:24] "GET /api/chapter8/itn-ownership?region=4" 200 1098
+127.0.0.1:37178 - - [09/Jun/2026:21:02:24] "GET /api/chapter8/itn-ownership?region=5" 200 1333
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:29,376 WARNING  Not Found: /chapter8/itn-usage-population
+127.0.0.1:42402 - - [09/Jun/2026:21:02:29] "GET /chapter8/itn-usage-population?region=1" 404 2675
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:29,387 WARNING  Not Found: /chapter8/itn-usage-population
+127.0.0.1:42416 - - [09/Jun/2026:21:02:29] "GET /chapter8/itn-usage-population?region=5" 404 2675
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:29,396 WARNING  Not Found: /chapter8/itn-usage-population
+127.0.0.1:42424 - - [09/Jun/2026:21:02:29] "GET /chapter8/itn-usage-population?region=3" 404 2675
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:29,418 WARNING  Not Found: /chapter8/itn-usage-population
+127.0.0.1:42426 - - [09/Jun/2026:21:02:29] "GET /chapter8/itn-usage-population?region=2" 404 2675
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:29,423 WARNING  Not Found: /chapter8/itn-usage-population
+127.0.0.1:42438 - - [09/Jun/2026:21:02:29] "GET /chapter8/itn-usage-population?region=4" 404 2675
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:31,050 WARNING  Not Found: /chapter8/itn-usage-population
+127.0.0.1:42446 - - [09/Jun/2026:21:02:31] "GET /chapter8/itn-usage-population?region=5" 404 2675
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:31,066 WARNING  Not Found: /chapter8/itn-usage-population
+Not Found: /chapter8/itn-usage-population
+127.0.0.1:42456 - - [09/Jun/2026:21:02:31] "GET /chapter8/itn-usage-population?region=1" 404 2675
+2026-06-09 21:02:31,067 WARNING  Not Found: /chapter8/itn-usage-population
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:31,069 WARNING  Not Found: /chapter8/itn-usage-population
+127.0.0.1:42462 - - [09/Jun/2026:21:02:31] "GET /chapter8/itn-usage-population?region=2" 404 2675
+127.0.0.1:42460 - - [09/Jun/2026:21:02:31] "GET /chapter8/itn-usage-population?region=3" 404 2675
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:31,075 WARNING  Not Found: /chapter8/itn-usage-population
+127.0.0.1:42474 - - [09/Jun/2026:21:02:31] "GET /chapter8/itn-usage-population?region=4" 404 2675
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:33,523 WARNING  Not Found: /chapter8/itn-usage-population
+127.0.0.1:42480 - - [09/Jun/2026:21:02:33] "GET /chapter8/itn-usage-population?region=5" 404 2675
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:33,533 WARNING  Not Found: /chapter8/itn-usage-population
+127.0.0.1:42492 - - [09/Jun/2026:21:02:33] "GET /chapter8/itn-usage-population?region=2" 404 2675
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:33,542 WARNING  Not Found: /chapter8/itn-usage-population
+127.0.0.1:42502 - - [09/Jun/2026:21:02:33] "GET /chapter8/itn-usage-population?region=4" 404 2675
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:33,552 WARNING  Not Found: /chapter8/itn-usage-population
+Not Found: /chapter8/itn-usage-population
+2026-06-09 21:02:33,553 WARNING  Not Found: /chapter8/itn-usage-population
+127.0.0.1:42510 - - [09/Jun/2026:21:02:33] "GET /chapter8/itn-usage-population?region=1" 404 2675
+127.0.0.1:42504 - - [09/Jun/2026:21:02:33] "GET /chapter8/itn-usage-population?region=3" 404 2675
+127.0.0.1:50364 - - [09/Jun/2026:21:02:47] "GET /api/chapter7/stunting?severity=any&region=1" 200 982
+127.0.0.1:50370 - - [09/Jun/2026:21:02:47] "GET /api/chapter7/stunting?severity=any&region=2" 200 1675
+127.0.0.1:50384 - - [09/Jun/2026:21:02:47] "GET /api/chapter7/stunting?severity=any&region=3" 200 1548
+127.0.0.1:50386 - - [09/Jun/2026:21:02:47] "GET /api/chapter7/stunting?severity=any&region=4" 200 1272
+127.0.0.1:50398 - - [09/Jun/2026:21:02:47] "GET /api/chapter7/stunting?severity=any&region=5" 200 1547
+127.0.0.1:43224 - - [09/Jun/2026:21:04:28] "GET /api/chapter6/diarrhea?region=1" 200 885
+127.0.0.1:43234 - - [09/Jun/2026:21:04:28] "GET /api/chapter6/diarrhea?region=2" 200 1488
+127.0.0.1:43240 - - [09/Jun/2026:21:04:28] "GET /api/chapter6/diarrhea?region=3" 200 1379
+127.0.0.1:43246 - - [09/Jun/2026:21:04:28] "GET /api/chapter6/diarrhea?region=4" 200 1139
+127.0.0.1:43260 - - [09/Jun/2026:21:04:28] "GET /api/chapter6/diarrhea?region=5" 200 1378
+127.0.0.1:46540 - - [09/Jun/2026:21:04:40] "GET /api/chapter8/itn-ownership?region=1" 200 848
+127.0.0.1:46550 - - [09/Jun/2026:21:04:40] "GET /api/chapter8/itn-ownership?region=2" 200 1441
+127.0.0.1:46558 - - [09/Jun/2026:21:04:40] "GET /api/chapter8/itn-ownership?region=3" 200 1334
+127.0.0.1:46574 - - [09/Jun/2026:21:04:40] "GET /api/chapter8/itn-ownership?region=4" 200 1098
+127.0.0.1:46582 - - [09/Jun/2026:21:04:40] "GET /api/chapter8/itn-ownership?region=5" 200 1333
+127.0.0.1:42982 - - [09/Jun/2026:21:05:18] "GET /api/chapter1/household-assets?asset=electricity&region=1" 200 882
+127.0.0.1:42992 - - [09/Jun/2026:21:05:18] "GET /api/chapter1/household-assets?asset=electricity&region=2" 200 1475
+127.0.0.1:42996 - - [09/Jun/2026:21:05:18] "GET /api/chapter1/household-assets?asset=electricity&region=3" 200 1368
+127.0.0.1:43004 - - [09/Jun/2026:21:05:18] "GET /api/chapter1/household-assets?asset=electricity&region=4" 200 1132
+127.0.0.1:43008 - - [09/Jun/2026:21:05:18] "GET /api/chapter1/household-assets?asset=electricity&region=5" 200 1367
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:19,354 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:43020 - - [09/Jun/2026:21:05:19] "GET /chapter1/household-assets?asset=electricity&region=2" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:19,368 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+127.0.0.1:43026 - - [09/Jun/2026:21:05:19] "GET /chapter1/household-assets?asset=electricity&region=5" 404 2685
+2026-06-09 21:05:19,370 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:19,371 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:19,370 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:43038 - - [09/Jun/2026:21:05:19] "GET /chapter1/household-assets?asset=electricity&region=4" 404 2685
+127.0.0.1:43042 - - [09/Jun/2026:21:05:19] "GET /chapter1/household-assets?asset=electricity&region=1" 404 2685
+127.0.0.1:43036 - - [09/Jun/2026:21:05:19] "GET /chapter1/household-assets?asset=electricity&region=3" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:20,820 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:43048 - - [09/Jun/2026:21:05:20] "GET /chapter1/household-assets?asset=electricity&region=2" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:20,944 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:43064 - - [09/Jun/2026:21:05:20] "GET /chapter1/household-assets?asset=electricity&region=1" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:20,955 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:43076 - - [09/Jun/2026:21:05:20] "GET /chapter1/household-assets?asset=electricity&region=4" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:20,959 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:43098 - - [09/Jun/2026:21:05:20] "GET /chapter1/household-assets?asset=electricity&region=3" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:20,959 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:43082 - - [09/Jun/2026:21:05:20] "GET /chapter1/household-assets?asset=electricity&region=5" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:23,276 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:43104 - - [09/Jun/2026:21:05:23] "GET /chapter1/household-assets?asset=electricity&region=2" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:23,499 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:43118 - - [09/Jun/2026:21:05:23] "GET /chapter1/household-assets?asset=electricity&region=1" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:23,625 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:23,627 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:43132 - - [09/Jun/2026:21:05:23] "GET /chapter1/household-assets?asset=electricity&region=5" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:23,632 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:43136 - - [09/Jun/2026:21:05:23] "GET /chapter1/household-assets?asset=electricity&region=3" 404 2685
+127.0.0.1:43148 - - [09/Jun/2026:21:05:23] "GET /chapter1/household-assets?asset=electricity&region=4" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:32,935 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:56350 - - [09/Jun/2026:21:05:32] "GET /chapter1/household-assets?asset=electricity&region=3" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:32,947 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+127.0.0.1:56362 - - [09/Jun/2026:21:05:32] "GET /chapter1/household-assets?asset=electricity&region=4" 404 2685
+2026-06-09 21:05:32,948 WARNING  Not Found: /chapter1/household-assets
+2026-06-09 21:05:32,948 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:32,949 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:56352 - - [09/Jun/2026:21:05:32] "GET /chapter1/household-assets?asset=electricity&region=5" 404 2685
+127.0.0.1:56354 - - [09/Jun/2026:21:05:32] "GET /chapter1/household-assets?asset=electricity&region=2" 404 2685
+127.0.0.1:56358 - - [09/Jun/2026:21:05:32] "GET /chapter1/household-assets?asset=electricity&region=1" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:34,423 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:56374 - - [09/Jun/2026:21:05:34] "GET /chapter1/household-assets?asset=electricity&region=3" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:34,455 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:56388 - - [09/Jun/2026:21:05:34] "GET /chapter1/household-assets?asset=electricity&region=4" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:34,463 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:56400 - - [09/Jun/2026:21:05:34] "GET /chapter1/household-assets?asset=electricity&region=5" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:34,473 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:34,473 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:56404 - - [09/Jun/2026:21:05:34] "GET /chapter1/household-assets?asset=electricity&region=2" 404 2685
+127.0.0.1:56416 - - [09/Jun/2026:21:05:34] "GET /chapter1/household-assets?asset=electricity&region=1" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:36,882 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:44098 - - [09/Jun/2026:21:05:36] "GET /chapter1/household-assets?asset=electricity&region=3" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:36,924 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:44112 - - [09/Jun/2026:21:05:36] "GET /chapter1/household-assets?asset=electricity&region=5" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:36,939 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:36,939 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+2026-06-09 21:05:36,939 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:44120 - - [09/Jun/2026:21:05:36] "GET /chapter1/household-assets?asset=electricity&region=2" 404 2685
+127.0.0.1:44118 - - [09/Jun/2026:21:05:36] "GET /chapter1/household-assets?asset=electricity&region=4" 404 2685
+127.0.0.1:44134 - - [09/Jun/2026:21:05:36] "GET /chapter1/household-assets?asset=electricity&region=1" 404 2685
+Not Found: /chapter7/stunting
+2026-06-09 21:05:46,273 WARNING  Not Found: /chapter7/stunting
+Not Found: /chapter7/stunting
+2026-06-09 21:05:46,274 WARNING  Not Found: /chapter7/stunting
+Not Found: /chapter7/stunting
+2026-06-09 21:05:46,274 WARNING  Not Found: /chapter7/stunting
+Not Found: /chapter7/stunting
+2026-06-09 21:05:46,274 WARNING  Not Found: /chapter7/stunting
+Not Found: /chapter7/stunting
+127.0.0.1:44174 - - [09/Jun/2026:21:05:46] "GET /chapter7/stunting?severity=any&region=2" 404 2656
+127.0.0.1:44138 - - [09/Jun/2026:21:05:46] "GET /chapter7/stunting?severity=any&region=3" 404 2656
+2026-06-09 21:05:46,274 WARNING  Not Found: /chapter7/stunting
+127.0.0.1:44168 - - [09/Jun/2026:21:05:46] "GET /chapter7/stunting?severity=any&region=1" 404 2656
+127.0.0.1:44154 - - [09/Jun/2026:21:05:46] "GET /chapter7/stunting?severity=any&region=5" 404 2656
+127.0.0.1:44142 - - [09/Jun/2026:21:05:46] "GET /chapter7/stunting?severity=any&region=4" 404 2656
+Not Found: /chapter7/stunting
+2026-06-09 21:05:47,782 WARNING  Not Found: /chapter7/stunting
+127.0.0.1:58734 - - [09/Jun/2026:21:05:47] "GET /chapter7/stunting?severity=any&region=2" 404 2656
+Not Found: /chapter7/stunting
+2026-06-09 21:05:47,812 WARNING  Not Found: /chapter7/stunting
+127.0.0.1:58738 - - [09/Jun/2026:21:05:47] "GET /chapter7/stunting?severity=any&region=1" 404 2656
+Not Found: /chapter7/stunting
+2026-06-09 21:05:47,832 WARNING  Not Found: /chapter7/stunting
+Not Found: /chapter7/stunting
+2026-06-09 21:05:47,832 WARNING  Not Found: /chapter7/stunting
+127.0.0.1:58752 - - [09/Jun/2026:21:05:47] "GET /chapter7/stunting?severity=any&region=4" 404 2656
+Not Found: /chapter7/stunting
+2026-06-09 21:05:47,834 WARNING  Not Found: /chapter7/stunting
+127.0.0.1:58754 - - [09/Jun/2026:21:05:47] "GET /chapter7/stunting?severity=any&region=3" 404 2656
+127.0.0.1:58742 - - [09/Jun/2026:21:05:47] "GET /chapter7/stunting?severity=any&region=5" 404 2656
+Not Found: /chapter7/stunting
+2026-06-09 21:05:50,597 WARNING  Not Found: /chapter7/stunting
+Not Found: /chapter7/stunting
+2026-06-09 21:05:50,598 WARNING  Not Found: /chapter7/stunting
+127.0.0.1:58780 - - [09/Jun/2026:21:05:50] "GET /chapter7/stunting?severity=any&region=4" 404 2656
+Not Found: /chapter7/stunting
+2026-06-09 21:05:50,599 WARNING  Not Found: /chapter7/stunting
+Not Found: /chapter7/stunting
+Not Found: /chapter7/stunting
+127.0.0.1:58768 - - [09/Jun/2026:21:05:50] "GET /chapter7/stunting?severity=any&region=1" 404 2656
+2026-06-09 21:05:50,600 WARNING  Not Found: /chapter7/stunting
+2026-06-09 21:05:50,600 WARNING  Not Found: /chapter7/stunting
+127.0.0.1:58782 - - [09/Jun/2026:21:05:50] "GET /chapter7/stunting?severity=any&region=3" 404 2656
+127.0.0.1:58764 - - [09/Jun/2026:21:05:50] "GET /chapter7/stunting?severity=any&region=5" 404 2656
+127.0.0.1:58770 - - [09/Jun/2026:21:05:50] "GET /chapter7/stunting?severity=any&region=2" 404 2656
+127.0.0.1:33356 - - [09/Jun/2026:21:06:19] "GET /api/chapter1/household-assets?asset=electricity&region=1" 200 882
+127.0.0.1:33370 - - [09/Jun/2026:21:06:19] "GET /api/chapter1/household-assets?asset=electricity&region=2" 200 1475
+127.0.0.1:33386 - - [09/Jun/2026:21:06:19] "GET /api/chapter1/household-assets?asset=electricity&region=3" 200 1368
+127.0.0.1:33394 - - [09/Jun/2026:21:06:19] "GET /api/chapter1/household-assets?asset=electricity&region=4" 200 1132
+127.0.0.1:33408 - - [09/Jun/2026:21:06:19] "GET /api/chapter1/household-assets?asset=electricity&region=5" 200 1367
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:27,833 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:60892 - - [09/Jun/2026:21:06:27] "GET /chapter1/household-assets?asset=electricity&region=2" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:27,848 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:27,849 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:27,850 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:60906 - - [09/Jun/2026:21:06:27] "GET /chapter1/household-assets?asset=electricity&region=5" 404 2685
+127.0.0.1:60926 - - [09/Jun/2026:21:06:27] "GET /chapter1/household-assets?asset=electricity&region=3" 404 2685
+127.0.0.1:60920 - - [09/Jun/2026:21:06:27] "GET /chapter1/household-assets?asset=electricity&region=1" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:27,855 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:60932 - - [09/Jun/2026:21:06:27] "GET /chapter1/household-assets?asset=electricity&region=4" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:35,366 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:60944 - - [09/Jun/2026:21:06:35] "GET /chapter1/household-assets?asset=electricity&region=2" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:35,377 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:35,378 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:60956 - - [09/Jun/2026:21:06:35] "GET /chapter1/household-assets?asset=electricity&region=3" 404 2685
+127.0.0.1:60962 - - [09/Jun/2026:21:06:35] "GET /chapter1/household-assets?asset=electricity&region=1" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:35,390 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:35,392 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:60968 - - [09/Jun/2026:21:06:35] "GET /chapter1/household-assets?asset=electricity&region=4" 404 2685
+127.0.0.1:60982 - - [09/Jun/2026:21:06:35] "GET /chapter1/household-assets?asset=electricity&region=5" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:40,795 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:49000 - - [09/Jun/2026:21:06:40] "GET /chapter1/household-assets?asset=electricity&region=1" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:40,811 WARNING  Not Found: /chapter1/household-assets
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:40,811 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:49014 - - [09/Jun/2026:21:06:40] "GET /chapter1/household-assets?asset=electricity&region=2" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:40,815 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:49022 - - [09/Jun/2026:21:06:40] "GET /chapter1/household-assets?asset=electricity&region=3" 404 2685
+127.0.0.1:49028 - - [09/Jun/2026:21:06:40] "GET /chapter1/household-assets?asset=electricity&region=5" 404 2685
+Not Found: /chapter1/household-assets
+2026-06-09 21:06:40,930 WARNING  Not Found: /chapter1/household-assets
+127.0.0.1:49032 - - [09/Jun/2026:21:06:40] "GET /chapter1/household-assets?asset=electricity&region=4" 404 2685
+Not Found: /docs
+2026-06-09 21:09:38,759 WARNING  Not Found: /docs
+127.0.0.1:57228 - - [09/Jun/2026:21:09:38] "GET /docs" 404 2591
+127.0.0.1:38830 - - [09/Jun/2026:21:11:07] "GET /admin" 301 -

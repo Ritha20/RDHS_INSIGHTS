@@ -1,0 +1,21 @@
+2026-06-11 08:00:00,640 INFO     Starting server at tcp:port=8000:interface=0.0.0.0
+2026-06-11 08:00:00,641 INFO     HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-06-11 08:00:00,641 INFO     Configuring endpoint tcp:port=8000:interface=0.0.0.0
+2026-06-11 08:00:00,643 INFO     Listening on TCP address 0.0.0.0:8000
+127.0.0.1:39004 - - [11/Jun/2026:08:00:06] "GET /api/chapter3/fertility-rate?region=1" 200 855
+127.0.0.1:39006 - - [11/Jun/2026:08:00:13] "GET /api/chapter3/fertility-rate?region=2" 200 1514
+127.0.0.1:39392 - - [11/Jun/2026:08:01:02] "GET /api/chapter3/fertility-rate?rate_type=observed&region=1" 200 855
+127.0.0.1:39404 - - [11/Jun/2026:08:01:02] "GET /api/chapter3/fertility-rate?rate_type=observed&region=2" 200 1514
+127.0.0.1:39412 - - [11/Jun/2026:08:01:02] "GET /api/chapter3/fertility-rate?rate_type=observed&region=3" 200 1394
+127.0.0.1:39422 - - [11/Jun/2026:08:01:02] "GET /api/chapter3/fertility-rate?rate_type=observed&region=4" 200 1127
+127.0.0.1:39432 - - [11/Jun/2026:08:01:02] "GET /api/chapter3/fertility-rate?rate_type=observed&region=5" 200 1393
+127.0.0.1:37708 - - [11/Jun/2026:08:02:25] "GET /api/chapter1/household-assets?asset=electricity&region=1" 200 763
+127.0.0.1:37710 - - [11/Jun/2026:08:02:25] "GET /api/chapter1/household-assets?asset=electricity&region=2" 200 1348
+127.0.0.1:37718 - - [11/Jun/2026:08:02:25] "GET /api/chapter1/household-assets?asset=electricity&region=3" 200 1242
+127.0.0.1:37726 - - [11/Jun/2026:08:02:25] "GET /api/chapter1/household-assets?asset=electricity&region=4" 200 1005
+127.0.0.1:37738 - - [11/Jun/2026:08:02:25] "GET /api/chapter1/household-assets?asset=electricity&region=5" 200 1241
+127.0.0.1:42180 - - [11/Jun/2026:08:02:57] "GET /api/chapter1/household-assets?asset=mobile&region=4" 200 1043
+127.0.0.1:42186 - - [11/Jun/2026:08:02:57] "GET /api/chapter1/household-assets?asset=mobile&region=3" 200 1294
+127.0.0.1:42200 - - [11/Jun/2026:08:02:57] "GET /api/chapter1/household-assets?asset=mobile&region=2" 200 1407
+127.0.0.1:42208 - - [11/Jun/2026:08:02:57] "GET /api/chapter1/household-assets?asset=mobile&region=5" 200 1293
+127.0.0.1:42218 - - [11/Jun/2026:08:02:57] "GET /api/chapter1/household-assets?asset=mobile&region=1" 200 787

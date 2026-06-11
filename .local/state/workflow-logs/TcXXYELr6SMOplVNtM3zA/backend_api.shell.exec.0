@@ -1,0 +1,14 @@
+2026-06-09 20:47:07,609 INFO     Starting server at tcp:port=8000:interface=127.0.0.1
+2026-06-09 20:47:07,610 INFO     HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-06-09 20:47:07,610 INFO     Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-06-09 20:47:07,611 INFO     Listening on TCP address 127.0.0.1:8000
+127.0.0.1:49424 - - [09/Jun/2026:20:47:16] "GET /api/chapter3/fertility-rate" 200 368
+127.0.0.1:49430 - - [09/Jun/2026:20:47:16] "GET /api/chapter6/diarrhea" 200 5135
+127.0.0.1:49440 - - [09/Jun/2026:20:47:16] "GET /api/chapter7/stunting" 200 339
+127.0.0.1:49446 - - [09/Jun/2026:20:47:17] "GET /api/chapter8/malaria-prevalence-children" 200 285
+127.0.0.1:49448 - - [09/Jun/2026:20:47:26] "GET /api/chapter3/fertility-rate?rate_type=observed&region=1" 200 368
+127.0.0.1:49450 - - [09/Jun/2026:20:47:26] "GET /api/chapter3/fertility-rate?rate_type=observed&region=2" 200 368
+127.0.0.1:49456 - - [09/Jun/2026:20:47:26] "GET /api/chapter3/fertility-rate?rate_type=observed&region=3" 200 368
+127.0.0.1:49464 - - [09/Jun/2026:20:47:26] "GET /api/chapter3/fertility-rate?rate_type=observed&region=4" 200 368
+127.0.0.1:49478 - - [09/Jun/2026:20:47:26] "GET /api/chapter3/fertility-rate?rate_type=observed&region=5" 200 368
+2026-06-09 20:50:08,495 INFO     Killed 0 pending application instances

@@ -1,0 +1,310 @@
+# Build a DHS Rwanda Analytics Dashboard
+
+You are a senior full-stack engineer, data visualization specialist, and UX designer.
+
+We are building a production-ready analytics dashboard for the DHS Rwanda API. The API already exists and exposes demographic, health, education, fertility, mortality, nutrition, and socioeconomic indicators.
+
+Your job is to build a modern, highly interactive dashboard that allows policymakers, researchers, NGOs, government analysts, and development partners to explore indicators visually.
+
+## Technology Stack
+
+Frontend:
+
+* Next.js 15 (App Router)
+* TypeScript
+* Tailwind CSS
+* shadcn/ui
+* TanStack Query (React Query)
+* Recharts
+* Leaflet or Mapbox for maps
+* Framer Motion for animations
+
+Backend:
+
+* Existing DHS API (already built)
+* Consume API endpoints directly
+
+## Primary Goal
+
+Create a dashboard that transforms raw DHS indicators into meaningful insights through interactive visualizations.
+
+The dashboard should feel similar to:
+
+* World Bank Data Explorer
+* UNICEF Data Portal
+* Rwanda Open Data Portal
+* WHO Observatory Dashboard
+* DataReportal Analytics
+
+---
+
+# Dashboard Layout
+
+## Header
+
+Include:
+
+* DHS Rwanda logo/title
+* Global search bar
+* Theme switcher
+* Export button
+* Last updated timestamp
+
+---
+
+## Left Sidebar Navigation
+
+Categories:
+
+* Overview
+* Population
+* Fertility
+* Mortality
+* Maternal Health
+* Child Health
+* Nutrition
+* Education
+* HIV/AIDS
+* Family Planning
+* Water & Sanitation
+* Wealth & Living Conditions
+
+Each category should dynamically load indicators from the API.
+
+---
+
+# Filters Panel
+
+Create a sticky filter panel.
+
+Supported filters:
+
+* Survey Year
+* Province
+* District
+* Urban / Rural
+* Gender
+* Age Group
+* Wealth Quintile
+
+Requirements:
+
+* Multi-select support
+* Clear all filters button
+* Persist filter state in URL
+* Automatically refresh visualizations
+
+---
+
+# KPI Summary Cards
+
+Display 4-6 key indicators at the top.
+
+Examples:
+
+* Population
+* Fertility Rate
+* Under-5 Mortality Rate
+* Literacy Rate
+* Stunting Rate
+* Contraceptive Prevalence
+
+Each card should contain:
+
+* Indicator value
+* Unit
+* Indicator name
+* Trend compared to previous year
+* Up/down trend arrow
+* Mini sparkline chart
+
+Cards must be responsive and animated.
+
+---
+
+# Main Visualization Area
+
+## Indicator Trend Chart
+
+Create a large chart area.
+
+Capabilities:
+
+* Line chart
+* Area chart
+* Bar chart
+
+Users can switch chart type.
+
+Features:
+
+* Hover tooltips
+* Zoom
+* Download chart
+* Responsive sizing
+
+The selected indicator should display trends across available survey years.
+
+---
+
+## Comparison Chart
+
+Allow comparison between:
+
+* Male vs Female
+* Urban vs Rural
+* Provinces
+* Wealth Quintiles
+
+Use:
+
+* Horizontal bars
+* Grouped bars
+* Stacked bars
+
+Interactive legend required.
+
+---
+
+# Rwanda Geographic Visualization
+
+Create an interactive Rwanda map.
+
+Features:
+
+* Province-level visualization
+* District-level drill-down
+* Color-coded indicator intensity
+* Hover tooltips
+* Click to filter dashboard
+
+Users should be able to visualize indicators geographically.
+
+---
+
+# Indicator Explorer
+
+Create a searchable indicator catalog.
+
+Features:
+
+* Search indicators
+* Category grouping
+* Favorite indicators
+* Recently viewed indicators
+
+When an indicator is selected:
+
+Display:
+
+* Indicator definition
+* Formula
+* Source
+* Survey year
+* Unit of measurement
+* Methodology notes
+
+---
+
+# Data Table Section
+
+Create a professional data table below visualizations.
+
+Features:
+
+* Sorting
+* Search
+* Pagination
+* Column visibility controls
+* CSV export
+* Excel export
+
+The table should always reflect active filters.
+
+---
+
+# Insights Panel
+
+Generate automatic insights based on displayed data.
+
+Examples:
+
+"Under-5 mortality decreased by 35% between 2010 and 2024."
+
+"Literacy rates remain highest in Kigali City."
+
+Display these as insight cards.
+
+---
+
+# Export Functionality
+
+Allow users to export:
+
+* PNG chart
+* PDF report
+* CSV data
+* Excel data
+
+Exports should respect active filters.
+
+---
+
+# Performance Requirements
+
+* React Query caching
+* Skeleton loading states
+* Error boundaries
+* Lazy loading
+* Responsive on desktop, tablet, and mobile
+
+---
+
+# UI Requirements
+
+Design should feel modern, clean, and government-grade.
+
+Use:
+
+* Card-based layouts
+* Soft shadows
+* Professional typography
+* Consistent spacing
+* Smooth animations
+* Accessible color palette
+
+---
+
+# Project Structure
+
+Generate:
+
+* Folder structure
+* Reusable components
+* API service layer
+* Custom hooks
+* TypeScript types
+* Example pages
+* Example API integrations
+
+Build the dashboard incrementally.
+
+Start with:
+
+1. Project setup
+2. Layout shell
+3. Sidebar navigation
+4. Filters system
+5. KPI cards
+6. Trend chart
+7. API integration
+
+Then continue feature-by-feature until the full dashboard is complete.
+
+Whenever code is generated:
+
+* Use production-quality patterns
+* Use TypeScript everywhere
+* Avoid mock implementations when possible
+* Keep components reusable
+* Follow Next.js best practices

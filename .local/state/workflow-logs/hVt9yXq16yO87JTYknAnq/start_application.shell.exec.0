@@ -1,0 +1,54 @@
+[1G[0K⠙[1G[0K
+> dhs-rwanda-dashboard@0.1.0 dev
+> next dev -p 5000 --hostname 0.0.0.0
+
+[1G[0K⠙[1G[0K   [1m[38;2;173;127;168m▲ Next.js 15.5.19[39m[22m
+   - Local:        http://localhost:5000
+   - Network:      http://0.0.0.0:5000
+   - Environments: .env.local
+
+ [32m[1m✓[22m[39m Starting...
+ [32m[1m✓[22m[39m Ready in 2s
+ [37m[1m○[22m[39m Compiling / ...
+ [32m[1m✓[22m[39m Compiled / in 3.7s (2513 modules)
+ GET / [32m200[39m in 4490ms
+ [37m[1m [22m[39m Reload env: .env.local
+ [32m[1m✓[22m[39m Compiled in 1714ms (2513 modules)
+ GET / [32m200[39m in 107ms
+ [32m[1m✓[22m[39m Compiled in 1928ms (2527 modules)
+ GET / [32m200[39m in 117ms
+ [37m[1m○[22m[39m Compiling /chapters/[chapter] ...
+ [32m[1m✓[22m[39m Compiled /chapters/[chapter] in 2.7s (2548 modules)
+ GET /chapters/fertility [32m200[39m in 3694ms
+ [32m[1m✓[22m[39m Compiled in 958ms (2538 modules)
+ [32m[1m✓[22m[39m Compiled in 549ms (2538 modules)
+ [32m[1m✓[22m[39m Compiled in 455ms (2538 modules)
+ [32m[1m✓[22m[39m Compiled in 462ms (2538 modules)
+ [32m[1m✓[22m[39m Compiled in 415ms (2538 modules)
+ [32m[1m✓[22m[39m Compiled in 977ms (2538 modules)
+ [37m[1m○[22m[39m Compiling /chapters/[chapter] ...
+ [32m[1m✓[22m[39m Compiled /chapters/[chapter] in 545ms (1352 modules)
+ GET /chapters/fertility [32m200[39m in 1259ms
+ GET /chapters/fertility [32m200[39m in 253ms
+ GET /chapters/nutrition [32m200[39m in 187ms
+ GET / [32m200[39m in 114ms
+ GET /chapters/household [32m200[39m in 105ms
+ GET /chapters/household [32m200[39m in 184ms
+ GET / [32m200[39m in 28ms
+ GET /chapters/hiv-aids [32m200[39m in 94ms
+ GET /chapters/gender [32m200[39m in 128ms
+ GET /chapters/hiv-aids [32m200[39m in 104ms
+ GET /chapters/malaria [32m200[39m in 99ms
+ GET /chapters/nutrition [32m200[39m in 128ms
+ GET /chapters/child-health [32m200[39m in 115ms
+ GET /chapters/malaria [32m200[39m in 102ms
+ GET /chapters/household [32m200[39m in 94ms
+ [37m[1m○[22m[39m Compiling /compare ...
+ [32m[1m✓[22m[39m Compiled /compare in 1147ms (2564 modules)
+ GET /compare [32m200[39m in 1272ms
+ GET /compare [32m200[39m in 19ms
+ GET /chapters/household [32m200[39m in 113ms
+ [37m[1m○[22m[39m Compiling /_not-found ...
+ [32m[1m✓[22m[39m Compiled /_not-found in 974ms (2569 modules)
+ GET /admin [33m404[39m in 1222ms
+ GET /admin [33m404[39m in 84ms

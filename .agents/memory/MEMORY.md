@@ -1,0 +1,10 @@
+- [Chart architecture](chart-architecture.md) — ChartContainer.tsx kept but ChartTypeSelector removed from UI; new VertBarChart.tsx + RwandaMap.tsx used for side-by-side display everywhere.
+- [DataTable contract](datatable-contract.md) — DataRow interface requires {name, value, type, sampleSize?, province?, provinceCode?}; table computes rank/vsNational/pctNational client-side from the rows array.
+- [Compare page](compare-page.md) — /compare route is fully client-side (no SSR initialData); CompareClient.tsx handles cross-chapter indicator comparison; useQueries fires indCount×5 parallel requests.
+- [Overview page client](overview-client.md) — app/page.tsx is a 'use client' component; 5 KPIs: Fertility, Maternal Health, Nutrition, Family Planning, HIV/AIDS; side-by-side RwandaMap+VertBarChart.
+- [Hydration dates](hydration-dates.md) — Any new Date() in SSR-rendered divs must use suppressHydrationWarning + typeof window !== 'undefined' guard to avoid hydration mismatch warnings.
+- [Sidebar context pattern](sidebar-context.md) — Sidebar collapse state lives in SidebarContext.tsx (separate from LayoutClient.tsx) to avoid Fast Refresh issues; hook+provider must never be in same file as default component export used by layout.tsx.
+- [NISR color theme](nisr-colors.md) — NISR navy #1B3C74 replaces rwanda-green; cyan #0099D4 as accent; both aliased as rwanda-green/rwanda-green-light in tailwind for backward compat; logo at /public/nisr-logo.png.
+- [Django backend data labels](django-data-labels.md) — DB data_label strings don't match generic names; must use exact DB values in router defaults; chapter1 asset param needs ASSET_MAP lookup.
+- [API URL pattern](api-url-pattern.md) — NEXT_PUBLIC_API_URL=http://localhost:8000/api; server-side uses string concat not new URL() (leading slash in path would override base); client-side proxied via /api rewrite in next.config.ts.
+- [Django admin proxy](django-admin-proxy.md) — /admin-panel and /admin are proxied via Next.js catch-all route handlers (not rewrites); must always append trailing slash to backend URL because Replit's proxy strips slashes before Next.js sees them.

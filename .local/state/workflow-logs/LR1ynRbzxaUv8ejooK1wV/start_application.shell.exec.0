@@ -1,0 +1,102 @@
+
+> dhs-rwanda-dashboard@0.1.0 dev
+> next dev -p 5000 --hostname 0.0.0.0
+
+[1G[0K   [1m[38;2;173;127;168m▲ Next.js 15.5.19[39m[22m
+   - Local:        http://localhost:5000
+   - Network:      http://0.0.0.0:5000
+   - Environments: .env.local
+
+ [32m[1m✓[22m[39m Starting...
+ [32m[1m✓[22m[39m Ready in 1777ms
+ [37m[1m○[22m[39m Compiling /admin/[[...path]] ...
+ [32m[1m✓[22m[39m Compiled /admin/[[...path]] in 2.3s (296 modules)
+ GET /admin [34m302[39m in 3779ms
+ [37m[1m○[22m[39m Compiling /admin-panel/[[...path]] ...
+ [32m[1m✓[22m[39m Compiled /admin-panel/[[...path]] in 1124ms (298 modules)
+ GET /admin/login?next=%2Fadmin%2F [34m302[39m in 932ms
+ GET /admin/login?next=%2Fadmin%2Flogin%3Fnext%3D%252Fadmin%252F [34m302[39m in 35ms
+ HEAD /admin-panel/login/ [34m302[39m in 1796ms
+ GET /admin/login?next=%2Fadmin%2Flogin%3Fnext%3D%252Fadmin%252Flogin%253Fnext%253D%25252Fadmin%25252F [34m302[39m in 36ms
+ GET /admin/login?next=%2Fadmin%2Flogin%3Fnext%3D%252Fadmin%252Flogin%253Fnext%253D%25252Fadmin%25252Flogin%25253Fnext%25253D%2525252Fadmin%2525252F [34m302[39m in 22ms
+ GET /admin/login?next=%2Fadmin%2Flogin%3Fnext%3D%252Fadmin%252Flogin%253Fnext%253D%25252Fadmin%25252Flogin%25253Fnext%25253D%2525252Fadmin%2525252Flogin%2525253Fnext%2525253D%252525252Fadmin%252525252F [34m302[39m in 31ms
+ GET /admin/login?next=%2Fadmin%2Flogin%3Fnext%3D%252Fadmin%252Flogin%253Fnext%253D%25252Fadmin%25252Flogin%25253Fnext%25253D%2525252Fadmin%2525252Flogin%2525253Fnext%2525253D%252525252Fadmin%252525252Flogin%252525253Fnext%252525253D%25252525252Fadmin%25252525252F [34m302[39m in 15ms
+ GET /admin/login?next=%2Fadmin%2Flogin%3Fnext%3D%252Fadmin%252Flogin%253Fnext%253D%25252Fadmin%25252Flogin%25253Fnext%25253D%2525252Fadmin%2525252Flogin%2525253Fnext%2525253D%252525252Fadmin%252525252Flogin%252525253Fnext%252525253D%25252525252Fadmin%25252525252Flogin%25252525253Fnext%25252525253D%2525252525252Fadmin%2525252525252F [34m302[39m in 30ms
+ GET /admin/login?next=%2Fadmin%2Flogin%3Fnext%3D%252Fadmin%252Flogin%253Fnext%253D%25252Fadmin%25252Flogin%25253Fnext%25253D%2525252Fadmin%2525252Flogin%2525253Fnext%2525253D%252525252Fadmin%252525252Flogin%252525253Fnext%252525253D%25252525252Fadmin%25252525252Flogin%25252525253Fnext%25252525253D%2525252525252Fadmin%2525252525252Flogin%2525252525253Fnext%2525252525253D%252525252525252Fadmin%252525252525252F [34m302[39m in 27ms
+ GET /admin/login?next=%2Fadmin%2Flogin%3Fnext%3D%252Fadmin%252Flogin%253Fnext%253D%25252Fadmin%25252Flogin%25253Fnext%25253D%2525252Fadmin%2525252Flogin%2525253Fnext%2525253D%252525252Fadmin%252525252Flogin%252525253Fnext%252525253D%25252525252Fadmin%25252525252Flogin%25252525253Fnext%25252525253D%2525252525252Fadmin%2525252525252Flogin%2525252525253Fnext%2525252525253D%252525252525252Fadmin%252525252525252Flogin%252525252525253Fnext%252525252525253D%25252525252525252Fadmin%25252525252525252F [34m302[39m in 31ms
+ GET /admin-panel/login [34m302[39m in 32ms
+ GET /admin-panel/login [34m302[39m in 14ms
+ GET /admin-panel/login [34m302[39m in 12ms
+ GET /admin-panel/login [34m302[39m in 22ms
+ GET /admin-panel/login [34m302[39m in 12ms
+ GET /admin-panel/login [34m302[39m in 12ms
+ GET /admin-panel/login [34m302[39m in 16ms
+ GET /admin-panel/login [34m302[39m in 10ms
+ GET /admin-panel/login [34m302[39m in 11ms
+ GET /admin-panel/login [34m302[39m in 11ms
+ [32m[1m✓[22m[39m Compiled in 95ms (104 modules)
+ [32m[1m✓[22m[39m Compiled in 76ms (104 modules)
+ HEAD /admin-panel/login/ [32m200[39m in 487ms
+ GET /admin-panel/login [34m302[39m in 37ms
+ GET /admin-panel/login [34m302[39m in 14ms
+ GET /admin-panel/login [34m302[39m in 14ms
+ GET /admin-panel/login [34m302[39m in 13ms
+ GET /admin-panel/login [34m302[39m in 14ms
+ GET /admin-panel/login [34m302[39m in 16ms
+ GET /admin-panel/login [34m302[39m in 11ms
+ GET /admin-panel/login [34m302[39m in 11ms
+ GET /admin-panel/login [34m302[39m in 11ms
+ GET /admin-panel/login [34m302[39m in 12ms
+ [32m[1m✓[22m[39m Compiled in 85ms (102 modules)
+ HEAD /admin-panel/login [32m200[39m in 99ms
+ GET /admin-panel/login [32m200[39m in 35ms
+ [37m[1m○[22m[39m Compiling / ...
+ [32m[1m✓[22m[39m Compiled / in 3.4s (2533 modules)
+ GET / [32m200[39m in 4113ms
+ [37m[1m○[22m[39m Compiling /_not-found ...
+ [32m[1m✓[22m[39m Compiled /_not-found in 1299ms (2533 modules)
+ GET /login [33m404[39m in 1653ms
+ GET /login/ [33m404[39m in 80ms
+ GET /login/ [33m404[39m in 77ms
+ [32m[1m✓[22m[39m Compiled /admin-panel/[[...path]] in 436ms (1348 modules)
+ GET /admin-panel/login/ [32m200[39m in 579ms
+ POST /admin-panel/login/ [34m302[39m in 388ms
+ GET /admin-panel/ [32m200[39m in 72ms
+ GET / [32m200[39m in 733ms
+ GET /admin-panel/login/ [34m302[39m in 56ms
+ GET /admin-panel/ [32m200[39m in 27ms
+ GET /admin-panel/login/ [34m302[39m in 35ms
+ GET /admin-panel/ [32m200[39m in 34ms
+ GET /admin-panel/datasets/ [32m200[39m in 52ms
+ GET /admin-panel/logout/ [34m302[39m in 42ms
+ GET /admin-panel/login/ [32m200[39m in 23ms
+ POST /admin-panel/login/ [34m302[39m in 407ms
+ GET /admin-panel/ [32m200[39m in 48ms
+ GET /admin-panel/datasets/ [32m200[39m in 57ms
+ POST /admin-panel/datasets/ [34m302[39m in 44ms
+ GET /admin-panel/datasets/ [32m200[39m in 26ms
+ POST /admin-panel/datasets/ [34m302[39m in 17109ms
+ GET /admin-panel/datasets/ [32m200[39m in 48ms
+ GET /admin-panel/ [32m200[39m in 53ms
+ GET /admin-panel/users/ [32m200[39m in 50ms
+ GET /admin-panel/ [32m200[39m in 61ms
+ GET / [32m200[39m in 139ms
+ GET /admin-panel/login/ [34m302[39m in 51ms
+ GET /admin-panel/ [32m200[39m in 30ms
+ GET /admin-panel/datasets/ [32m200[39m in 52ms
+ POST /admin-panel/datasets/delete/69/ [34m302[39m in 61ms
+ GET /admin-panel/ [32m200[39m in 33ms
+ GET /admin-panel/audit-logs/ [32m200[39m in 78ms
+ GET /admin-panel/audit-logs/?action=&user=nisr&success=1&date_from=&date_to= [32m200[39m in 65ms
+ GET / [32m200[39m in 135ms
+ [37m[1m○[22m[39m Compiling /chapters/[chapter] ...
+ [32m[1m✓[22m[39m Compiled /chapters/[chapter] in 1267ms (2549 modules)
+ GET /chapters/household [32m200[39m in 2172ms
+ [37m[1m○[22m[39m Compiling /_not-found ...
+ [32m[1m✓[22m[39m Compiled /_not-found in 784ms (2554 modules)
+ GET /login/ [33m404[39m in 1101ms
+ GET /chapter/3 [33m404[39m in 132ms
+ GET /chapters/3 [33m404[39m in 182ms
+ GET /chapters/fertility-marriage [33m404[39m in 152ms
+ GET /chapters/fertility [32m200[39m in 446ms
+ GET /chapters/household [32m200[39m in 232ms

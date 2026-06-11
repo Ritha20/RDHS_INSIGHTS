@@ -1,0 +1,27 @@
+I have a monorepo with:
+- `frontend/` – a Next.js dashboard (React + Tailwind CSS)
+- `backend/` – a Django project that includes a FastAPI‑style API (Django Ninja / DRF with async, or actually FastAPI mounted inside Django). The API endpoints are already defined.
+
+I want you to:
+
+1. **Replace all API calls** in the Next.js frontend so they connect to the Django backend instead of any internal or mock endpoints.
+   - Find every `fetch()`, `axios`, or any HTTP client call in the frontend.
+   - Change the base URL to point to the Django backend. Use an environment variable `NEXT_PUBLIC_API_URL` (default `http://localhost:8000` for development).
+   - Create/update `frontend/.env.local` with `NEXT_PUBLIC_API_URL=http://localhost:8000`.
+
+2. **Adjust endpoints** to match the actual routes provided by the Django backend (e.g., `/api/chapter1/...`, `/meta/indicators`, etc.). If the current frontend expects different paths, map them accordingly. Update any data models / TypeScript interfaces to match the JSON responses from Django.
+
+3. **Keep the existing color scheme intact** – do not change any Tailwind CSS configuration, colour classes, or design tokens. The frontend already has a bluish‑green theme; preserve it.
+
+4. **Configure CORS in the Django backend** to accept requests from the Next.js frontend:
+   - If `django-cors-headers` is not installed, add it to `requirements.txt`.
+   - Add `'corsheaders'` to `INSTALLED_APPS`.
+   - Add `'corsheaders.middleware.CorsMiddleware'` at the top of `MIDDLEWARE`.
+   - Set `CORS_ALLOWED_ORIGINS` to include `http://localhost:3000` (and any other frontend URL).
+
+5. **Ensure both servers can run together**:
+   - The Django backend will run on port 8000 (e.g., `python manage.py runserver 8000`).
+   - The Next.js frontend will run on port 3000 (`npm run dev`).
+   - No cross‑origin errors should occur.
+
+After applying these changes, the dashboard should work with live data from the Django + FastAPI backend, while retaining the same visual appearance.

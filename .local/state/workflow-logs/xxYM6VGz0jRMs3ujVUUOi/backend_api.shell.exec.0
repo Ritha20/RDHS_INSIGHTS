@@ -1,0 +1,47 @@
+2026-06-09 20:43:15,265 INFO     Starting server at tcp:port=8000:interface=127.0.0.1
+2026-06-09 20:43:15,266 INFO     HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-06-09 20:43:15,266 INFO     Configuring endpoint tcp:port=8000:interface=127.0.0.1
+2026-06-09 20:43:15,267 INFO     Listening on TCP address 127.0.0.1:8000
+127.0.0.1:50656 - - [09/Jun/2026:20:43:16] "GET /" 302 -
+127.0.0.1:50656 - - [09/Jun/2026:20:43:16] "GET /admin-panel/" 302 -
+127.0.0.1:50656 - - [09/Jun/2026:20:43:16] "GET /admin-panel/login/" 200 3433
+Not Found: /favicon.ico
+2026-06-09 20:43:17,381 WARNING  Not Found: /favicon.ico
+127.0.0.1:50656 - - [09/Jun/2026:20:43:17] "GET /favicon.ico" 404 2612
+127.0.0.1:50662 - - [09/Jun/2026:20:43:25] "GET /api/chapter3/median-age-first-marriage?region=1" 200 928
+127.0.0.1:37906 - - [09/Jun/2026:20:43:39] "GET /api/chapter3/fertility-rate?rate_type=observed&region=1" 404 22
+127.0.0.1:37918 - - [09/Jun/2026:20:43:39] "GET /api/chapter3/fertility-rate?rate_type=observed&region=2" 404 22
+127.0.0.1:37926 - - [09/Jun/2026:20:43:39] "GET /api/chapter3/fertility-rate?rate_type=observed&region=3" 404 22
+127.0.0.1:37930 - - [09/Jun/2026:20:43:39] "GET /api/chapter3/fertility-rate?rate_type=observed&region=4" 404 22
+127.0.0.1:37934 - - [09/Jun/2026:20:43:39] "GET /api/chapter3/fertility-rate?rate_type=observed&region=5" 404 22
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:43:40,538 WARNING  Not Found: /chapter3/fertility-rate
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:43:40,538 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:37948 - - [09/Jun/2026:20:43:40] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+127.0.0.1:37958 - - [09/Jun/2026:20:43:40] "GET /chapter3/fertility-rate?rate_type=observed&region=2" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:43:40,550 WARNING  Not Found: /chapter3/fertility-rate
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:43:40,550 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:37962 - - [09/Jun/2026:20:43:40] "GET /chapter3/fertility-rate?rate_type=observed&region=3" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:43:40,552 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:37974 - - [09/Jun/2026:20:43:40] "GET /chapter3/fertility-rate?rate_type=observed&region=4" 404 2680
+127.0.0.1:37986 - - [09/Jun/2026:20:43:40] "GET /chapter3/fertility-rate?rate_type=observed&region=5" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:43:41,568 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:37994 - - [09/Jun/2026:20:43:41] "GET /chapter3/fertility-rate?rate_type=observed&region=1" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:43:41,571 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:38004 - - [09/Jun/2026:20:43:41] "GET /chapter3/fertility-rate?rate_type=observed&region=2" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:43:41,587 WARNING  Not Found: /chapter3/fertility-rate
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:43:41,587 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:38012 - - [09/Jun/2026:20:43:41] "GET /chapter3/fertility-rate?rate_type=observed&region=3" 404 2680
+127.0.0.1:38014 - - [09/Jun/2026:20:43:41] "GET /chapter3/fertility-rate?rate_type=observed&region=4" 404 2680
+Not Found: /chapter3/fertility-rate
+2026-06-09 20:43:41,589 WARNING  Not Found: /chapter3/fertility-rate
+127.0.0.1:38026 - - [09/Jun/2026:20:43:41] "GET /chapter3/fertility-rate?rate_type=observed&region=5" 404 2680
+2026-06-09 20:47:06,178 INFO     Killed 0 pending application instances
