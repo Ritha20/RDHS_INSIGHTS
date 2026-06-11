@@ -1,73 +1,392 @@
 {% extends 'admin/admin_base.html' %}
 {% block title %}User Management{% endblock %}
-{% block header %}System Users{% endblock %}
+{% block breadcrumb_label %}User Management{% endblock %}
+{% block page_title %}User Management{% endblock %}
 
 {% block topbar_actions %}
-<a href="{% url 'admin_user_create' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add New User</a>
+<a href="{% url 'admin_user_create' %}" class="btn btn-primary btn-sm">
+    <i class="fas fa-plus"></i> Add User
+</a>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .user-cell .uname  { font-weight: 600; font-size: 0.875rem; color: var(--text); }
+    .user-cell .uemail { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+    .action-links      { display: flex; gap: 18px; align-items: center; }
+
+    .search-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .search-wrap {
+        position: relative; flex: 1; max-width: 360px;
+    }
+    .search-wrap input { padding-left: 34px; }
+    .search-icon {
+        position: absolute; left: 11px; top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted); font-size: 0.78rem;
+        pointer-events: none;
+    }
+    /* Spinner — rotates the SVG only, no translate in keyframes */
+    .search-spinner {
+        display: none;
+        position: absolute; left: 9px; top: 50%;
+        transform: translateY(-50%);
+        width: 16px; height: 16px;
+        pointer-events: none;
+    }
+    .search-spinner svg { animation: searchSpin 0.7s linear infinite; }
+    @keyframes searchSpin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+    }
+
+    .result-badge {
+        font-size: 0.75rem; color: var(--muted);
+        background: var(--blue-xlight);
+        border: 1px solid var(--blue-light);
+        padding: 3px 10px; border-radius: 99px;
+        display: none;
+    }
+
+    .info-box {
+        margin-top: 20px;
+        background: var(--blue-dark);
+        border-radius: 12px;
+        padding: 20px 24px;
+    }
+    .info-box .ib-label {
+        font-size: 0.62rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.1em;
+        color: rgba(255,255,255,0.4); margin-bottom: 8px;
+    }
+    .info-box p { font-size: 0.82rem; color: rgba(255,255,255,0.55); line-height: 1.6; }
+    .info-box strong { color: rgba(255,255,255,0.8); }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h2 class="card-title">All Users</h2>
+
+{# Embed URL bases as data attributes — no JS string manipulation needed #}
+<div id="searchMeta"
+     data-search-url="{% url 'admin_user_search' %}"
+     data-edit-base="{% url 'admin_user_edit' 1 %}"
+     data-toggle-base="{% url 'admin_user_toggle' 1 %}"
+     data-delete-base="{% url 'admin_user_delete' 1 %}"
+     data-csrf="{{ csrf_token }}"
+     data-self-id="{{ request.user.id }}"
+     style="display:none;">
+</div>
+
+<div class="search-row">
+    <div class="search-wrap">
+        <i class="fas fa-magnifying-glass search-icon" id="searchIcon"></i>
+        <span class="search-spinner" id="searchSpinner">
+            <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                <circle cx="12" cy="12" r="10" stroke="#cbd5e1" stroke-width="3"/>
+                <path d="M12 2 a10 10 0 0 1 10 10" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+        </span>
+        <input type="text"
+               id="userSearchInput"
+               value="{{ q }}"
+               placeholder="Search by name, username or email…"
+               autocomplete="off"
+               spellcheck="false">
     </div>
+    <span class="result-badge" id="searchCount"></span>
+    <button type="button" id="clearSearch"
+            class="btn btn-ghost btn-sm"
+            style="display:{% if q %}inline-flex{% else %}none{% endif %};">
+        <i class="fas fa-xmark"></i> Clear
+    </button>
+</div>
+
+<div class="card" style="padding:0; overflow:hidden;">
     <div class="table-wrap">
         <table>
             <thead>
                 <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Name</th>
+                    <th>User</th>
                     <th>Role</th>
                     <th>Status</th>
+                    <th>Last Login</th>
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="userTableBody">
                 {% for u in page_obj %}
                 <tr>
-                    <td><strong>{{ u.username }}</strong></td>
-                    <td>{{ u.email }}</td>
-                    <td>{{ u.first_name }} {{ u.last_name }}</td>
+                    <td>
+                        <div class="user-cell">
+                            <div class="uname">{{ u.get_full_name|default:u.username }}</div>
+                            <div class="uemail">{{ u.email|default:"—" }}</div>
+                        </div>
+                    </td>
                     <td>
                         {% if u.is_superuser %}
-                            <span class="badge" style="background:var(--red);color:white;">Superuser</span>
+                            <span class="badge badge-blue">Super Admin</span>
                         {% elif u.is_staff %}
-                            <span class="badge" style="background:var(--blue);color:white;">Admin</span>
+                            <span class="badge badge-blue">Admin</span>
                         {% else %}
-                            <span class="badge">User</span>
+                            <span class="badge badge-gray">User</span>
                         {% endif %}
                     </td>
                     <td>
                         {% if u.is_active %}
-                            <span class="badge" style="background:var(--green);color:white;">Active</span>
+                            <span class="badge badge-green">Active</span>
                         {% else %}
-                            <span class="badge" style="background:var(--muted);color:white;">Inactive</span>
+                            <span class="badge badge-gray">Inactive</span>
                         {% endif %}
                     </td>
+                    <td style="color:var(--muted); font-size:0.8rem;">
+                        {% if u.last_login %}{{ u.last_login|date:"Y-m-d H:i" }}{% else %}—{% endif %}
+                    </td>
                     <td>
-                        <a href="{% url 'admin_user_edit' u.id %}" class="btn btn-ghost btn-sm">Edit</a>
+                        <div class="action-links">
+                            <a href="{% url 'admin_user_edit' u.id %}" class="btn-link edit">Edit</a>
+
+                            <form method="post" action="{% url 'admin_user_toggle' u.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-link {% if u.is_active %}{% else %}blue{% endif %}">
+                                    {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
+                                </button>
+                            </form>
+
+                            {% if u != request.user %}
+                            <form method="post" action="{% url 'admin_user_delete' u.id %}"
+                                  style="display:inline;"
+                                  onsubmit="return confirm('Delete user \'{{ u.username }}\'? This cannot be undone.')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-link">Delete</button>
+                            </form>
+                            {% endif %}
+                        </div>
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="6" style="text-align:center;color:var(--muted);">No users found.</td></tr>
+                <tr>
+                    <td colspan="5" style="text-align:center; color:var(--muted); padding:48px;">
+                        {% if q %}No users matching "{{ q }}".{% else %}No users found.{% endif %}
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
     {% if page_obj.has_other_pages %}
-    <div style="display:flex;justify-content:center;gap:8px;padding:16px 0 4px;">
-        {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}" class="btn btn-ghost btn-sm">Previous</a>
-        {% endif %}
-        <span style="padding:6px 12px;font-size:0.85rem;color:var(--text-muted);">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-        </span>
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}" class="btn btn-ghost btn-sm">Next</a>
-        {% endif %}
+    <div class="pager" id="userPager">
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        <div class="pager-btns">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">Previous</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}">Next</a>
+            {% endif %}
+        </div>
     </div>
     {% endif %}
 </div>
+
+<div class="info-box">
+    <div class="ib-label">How User Access Works</div>
+    <p>Admin users can log in to manage datasets, users, and view audit logs.
+       Use <strong>Deactivate</strong> to suspend access without deleting the account.
+       <strong>Delete</strong> permanently removes the user from the system.</p>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict';
+
+    /* ── Config from server (safe — no JS string manipulation) ── */
+    var meta       = document.getElementById('searchMeta');
+    var SEARCH_URL = meta.dataset.searchUrl;
+    var EDIT_BASE  = meta.dataset.editBase.replace(/\/1\/$/, '/');   /* /admin/users/edit/1/ → /admin/users/edit/ */
+    var TOGGLE_BASE= meta.dataset.toggleBase.replace(/\/1\/$/, '/');
+    var DELETE_BASE= meta.dataset.deleteBase.replace(/\/1\/$/, '/');
+    var CSRF       = meta.dataset.csrf;
+    var SELF_ID    = parseInt(meta.dataset.selfId, 10);
+
+    /* ── DOM refs ── */
+    var input    = document.getElementById('userSearchInput');
+    var tbody    = document.getElementById('userTableBody');
+    var pager    = document.getElementById('userPager');   /* may be null */
+    var clearBtn = document.getElementById('clearSearch');
+    var countEl  = document.getElementById('searchCount');
+    var spinner  = document.getElementById('searchSpinner');
+    var icon     = document.getElementById('searchIcon');
+
+    /* ── State ── */
+    var debounceTimer  = null;
+    var activeCtrl     = null;   /* AbortController for the in-flight fetch */
+    var lastQuery      = input.value.trim();
+
+    /* ── Helpers ── */
+    function esc(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function normalise(s) {
+        /* trim + collapse inner whitespace */
+        return s.replace(/\s+/g, ' ').trim();
+    }
+
+    function roleBadge(u) {
+        if (u.is_superuser) return '<span class="badge badge-blue">Super Admin</span>';
+        if (u.is_staff)     return '<span class="badge badge-blue">Admin</span>';
+        return '<span class="badge badge-gray">User</span>';
+    }
+
+    function buildRows(users, q) {
+        if (!users.length) {
+            var msg = q
+                ? 'No users matching “' + esc(q) + '”.'
+                : 'No users found.';
+            return '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:48px;">'
+                   + msg + '</td></tr>';
+        }
+
+        return users.map(function (u) {
+            var activeLabel = u.is_active ? 'Deactivate' : 'Activate';
+            var activeCls   = u.is_active ? '' : ' blue';
+            var statusBadge = u.is_active
+                ? '<span class="badge badge-green">Active</span>'
+                : '<span class="badge badge-gray">Inactive</span>';
+
+            var deleteHtml = '';
+            if (u.id !== SELF_ID) {
+                deleteHtml =
+                    '<form method="post" action="' + DELETE_BASE + u.id + '/" style="display:inline"'
+                    + ' onsubmit="return confirm(\'Delete user ' + esc(u.username) + '? This cannot be undone.\')">'
+                    + '<input type="hidden" name="csrfmiddlewaretoken" value="' + esc(CSRF) + '">'
+                    + '<button type="submit" class="btn-link">Delete</button>'
+                    + '</form>';
+            }
+
+            return '<tr>'
+                + '<td><div class="user-cell">'
+                +   '<div class="uname">' + esc(u.full_name) + '</div>'
+                +   '<div class="uemail">' + esc(u.email || '—') + '</div>'
+                + '</div></td>'
+                + '<td>' + roleBadge(u) + '</td>'
+                + '<td>' + statusBadge + '</td>'
+                + '<td style="color:var(--muted);font-size:0.8rem;">' + esc(u.last_login || '—') + '</td>'
+                + '<td><div class="action-links">'
+                +   '<a href="' + EDIT_BASE + u.id + '/" class="btn-link edit">Edit</a>'
+                +   '<form method="post" action="' + TOGGLE_BASE + u.id + '/" style="display:inline">'
+                +     '<input type="hidden" name="csrfmiddlewaretoken" value="' + esc(CSRF) + '">'
+                +     '<button type="submit" class="btn-link' + activeCls + '">' + activeLabel + '</button>'
+                +   '</form>'
+                +   deleteHtml
+                + '</div></td>'
+                + '</tr>';
+        }).join('');
+    }
+
+    /* ── DOM update — preserves focus and cursor position ── */
+    function applyResults(users, q) {
+        var wasFocused  = (document.activeElement === input);
+        var selStart    = input.selectionStart;
+        var selEnd      = input.selectionEnd;
+
+        tbody.innerHTML = buildRows(users, q);
+
+        /* Restore focus/cursor if input was active when results arrived */
+        if (wasFocused) {
+            input.focus();
+            try { input.setSelectionRange(selStart, selEnd); } catch (_) {}
+        }
+
+        /* Update result count badge */
+        if (q && users.length) {
+            countEl.textContent   = users.length + ' result' + (users.length !== 1 ? 's' : '');
+            countEl.style.display = 'inline';
+        } else {
+            countEl.style.display = 'none';
+        }
+
+        /* Show/hide pager */
+        if (pager) pager.style.display = q ? 'none' : '';
+    }
+
+    /* ── Fetch search results ── */
+    function doSearch(q) {
+        if (activeCtrl) activeCtrl.abort();
+        activeCtrl = new AbortController();
+
+        /* Loading state */
+        spinner.style.display = 'inline-block';
+        icon.style.display    = 'none';
+
+        var url = new URL(SEARCH_URL, window.location.origin);
+        if (q) url.searchParams.set('q', q);
+
+        fetch(url.toString(), {
+            signal:  activeCtrl.signal,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function (r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        })
+        .then(function (data) {
+            spinner.style.display = 'none';
+            icon.style.display    = 'inline';
+            applyResults(data.users, q);
+            /* Update URL bar only AFTER results arrive — avoids premature navigation events */
+            try {
+                var newUrl = q
+                    ? (location.pathname + '?q=' + encodeURIComponent(q))
+                    : location.pathname;
+                history.replaceState(null, '', newUrl);
+            } catch (_) {}
+        })
+        .catch(function (err) {
+            if (err.name === 'AbortError') return;  /* superseded by newer query — ignore */
+            spinner.style.display = 'none';
+            icon.style.display    = 'inline';
+        });
+    }
+
+    /* ── Input handler with debounce ── */
+    input.addEventListener('input', function () {
+        var q = normalise(input.value);
+        clearBtn.style.display = q ? 'inline-flex' : 'none';
+
+        /* Skip fetch if nothing actually changed */
+        if (q === lastQuery) return;
+        lastQuery = q;
+
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () { doSearch(q); }, 400);
+    });
+
+    /* ── Enter key fires immediately (no extra wait) ── */
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            clearTimeout(debounceTimer);
+            doSearch(normalise(input.value));
+        }
+    });
+
+    /* ── Clear button ── */
+    clearBtn.addEventListener('click', function () {
+        input.value            = '';
+        clearBtn.style.display = 'none';
+        lastQuery              = '';
+        clearTimeout(debounceTimer);
+        doSearch('');
+        input.focus();
+    });
+
+})();
+</script>
 {% endblock %}

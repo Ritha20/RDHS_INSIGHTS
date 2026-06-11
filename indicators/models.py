@@ -80,6 +80,40 @@ class DHSUploadedDataset(models.Model):
         ordering = ['-uploaded_at']
 
 
+class Invitation(models.Model):
+    ROLE_CHOICES = [
+        ('analyst', 'Analyst'),
+        ('admin', 'Admin'),
+    ]
+    email       = models.EmailField()
+    token       = models.CharField(max_length=64, unique=True)
+    role        = models.CharField(max_length=20, choices=ROLE_CHOICES, default='analyst')
+    invited_by  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sent_invitations')
+    created_at  = models.DateTimeField(auto_now_add=True)
+    expires_at  = models.DateTimeField()
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    is_used      = models.BooleanField(default=False)
+    is_cancelled = models.BooleanField(default=False)
+
+    @property
+    def is_expired(self):
+        from django.utils import timezone
+        return not self.is_used and not self.is_cancelled and timezone.now() > self.expires_at
+
+    @property
+    def status(self):
+        if self.is_used:      return 'accepted'
+        if self.is_cancelled: return 'cancelled'
+        if self.is_expired:   return 'expired'
+        return 'pending'
+
+    def __str__(self):
+        return f"Invitation<{self.email} {self.status}>"
+
+    class Meta:
+        ordering = ['-created_at']
+
+
 class SystemAuditLog(models.Model):
     """Tracks all significant actions performed by admin users."""
     ACTION_CHOICES = [
@@ -91,6 +125,8 @@ class SystemAuditLog(models.Model):
         ('LOGIN', 'Admin Login'),
         ('LOGOUT', 'Admin Logout'),
         ('DATA_DELETE', 'Data Deleted'),
+        ('INVITE_SENT', 'Invitation Sent'),
+        ('INVITE_ACCEPT', 'Invitation Accepted'),
         ('OTHER', 'Other'),
     ]
     timestamp = models.DateTimeField(auto_now_add=True)

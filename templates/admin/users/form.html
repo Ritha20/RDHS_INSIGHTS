@@ -1,6 +1,7 @@
 {% extends 'admin/admin_base.html' %}
-{% block title %}{{ title }} - User Management{% endblock %}
-{% block header %}{{ title }}{% endblock %}
+{% block title %}{{ title }}{% endblock %}
+{% block breadcrumb_label %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'admin_user_list' %}" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-left"></i> Back to Users</a>

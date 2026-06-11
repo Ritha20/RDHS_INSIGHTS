@@ -182,7 +182,6 @@ def _run_computation(uploaded_by_id, year):
         return None
 
     for chapter, indicators in INDICATORS.items():
-        category, _ = Category.objects.get_or_create(name=chapter)
 
         for ind_name, meta in indicators.items():
             datasets = {}
@@ -211,6 +210,8 @@ def _run_computation(uploaded_by_id, year):
 
             has_category_col = 'Category' in result_df.columns
 
+            # Only create the category when we actually have results to save
+            category, _ = Category.objects.get_or_create(name=chapter)
             indicator_obj, _ = Indicator.objects.get_or_create(
                 name=ind_name,
                 category=category,
