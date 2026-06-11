@@ -22,6 +22,7 @@ const rbState = {
 const rbGeo = { json: null, minLon: 0, maxLon: 0, minLat: 0, maxLat: 0, loaded: false };
 
 let rbDrag = null;          // pending drag descriptor { kind:'new'|'move', ... }
+let rbActiveTextBlockId = null;  // id of the text block the cursor was last in
 let rbUidCounter = 0;
 function rbUid() { return 'b' + (++rbUidCounter) + Date.now().toString(36); }
 
@@ -94,7 +95,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.rb-add-menu-wrap')) rbCloseMenu('rb-add-menu');
         if (!e.target.closest('#rb-export-wrap')) rbCloseMenu('rb-export-menu');
+        if (!e.target.closest('.rb-color-wrap')) rbCloseMenu('rb-color-pop');
     });
+
+    // Keep the ribbon's bold/italic/etc. state in sync with the cursor
+    document.addEventListener('selectionchange', () => {
+        const ae = document.activeElement;
+        if (ae && ae.classList && ae.classList.contains('rb-text')) rbUpdateToolbarState();
+    });
+
+    rbUpdateToolbarState();
 });
 
 // ── LEFT: Indicator Library ─────────────────────────────────────────
@@ -294,6 +304,7 @@ function rbRenderDoc() {
         if (block.type === 'indicator') rbRenderIndicatorViz(block);
     });
     rbUpdateStatus();
+    rbUpdateToolbarState();
 }
 
 function rbNewPageEl(num) {
@@ -335,7 +346,8 @@ function rbRenderBlockBody(block) {
             if (block.style === 'ul' && !block.html) el.innerHTML = '<li>List item</li>';
             else el.innerHTML = block.html || '';
             el.addEventListener('input', () => { block.html = el.innerHTML; rbUpdateStatus(); });
-            el.addEventListener('focus', () => rbSelect(block.id));
+            el.addEventListener('focus', () => { rbActiveTextBlockId = block.id; rbSelect(block.id); rbUpdateToolbarState(); });
+            el.addEventListener('keyup', rbUpdateToolbarState);
             c.appendChild(el);
             break;
         }
@@ -423,8 +435,11 @@ function rbUpdateStatus() {
 // ── Selection ───────────────────────────────────────────────────────
 function rbSelect(id) {
     rbState.selectedId = id;
+    const b = rbState.blocks.find(x => x.id === id);
+    if (b && b.type === 'text') rbActiveTextBlockId = id;
     rbApplySelectionHighlight();
     rbRenderProps();
+    rbUpdateToolbarState();
 }
 function rbApplySelectionHighlight() {
     document.querySelectorAll('#rb-doc .rb-block').forEach(el => {
@@ -844,6 +859,82 @@ function rbResizeTable(id, dim, delta) {
 function rbToggleAddMenu(e) { e.stopPropagation(); document.getElementById('rb-add-menu').classList.toggle('open'); }
 function rbToggleExportMenu(e) { e.stopPropagation(); document.getElementById('rb-export-menu').classList.toggle('open'); }
 function rbCloseMenu(id) { const m = document.getElementById(id); if (m) m.classList.remove('open'); }
+
+// ── Formatting ribbon (Google-Docs / Word style rich text) ──────────
+// Inline tools operate on the cursor's current selection inside the active
+// text block. Buttons use onmousedown=preventDefault so the editable keeps
+// its selection/focus when clicked.
+function rbActiveTextEl() {
+    const ae = document.activeElement;
+    if (ae && ae.classList && ae.classList.contains('rb-text')) return ae;
+    if (rbActiveTextBlockId) {
+        return document.querySelector('#rb-doc .rb-block[data-id="' + rbActiveTextBlockId + '"] .rb-text');
+    }
+    return null;
+}
+
+function rbCmd(cmd, val) {
+    const el = rbActiveTextEl();
+    if (!el) return;
+    el.focus();
+    try { document.execCommand(cmd, false, val || null); } catch (e) {}
+    const b = rbBlock(rbActiveTextBlockId);
+    if (b) b.html = el.innerHTML;
+    rbUpdateToolbarState();
+}
+
+function rbApplyColor(color) {
+    rbCmd('foreColor', color);
+    const a = document.querySelector('.rb-color-a');
+    if (a) a.style.borderBottomColor = color;
+    rbCloseMenu('rb-color-pop');
+}
+function rbToggleColorPop(e) {
+    e.stopPropagation();
+    const pop = document.getElementById('rb-color-pop');
+    if (pop) pop.classList.toggle('open');
+}
+
+function rbSetActiveBlockStyle(style) {
+    if (!style) return;
+    const id = rbActiveTextBlockId;
+    const b = rbBlock(id);
+    if (!b || b.type !== 'text') return;
+    rbSetTextStyle(id, style);
+    setTimeout(() => {
+        const el = document.querySelector('#rb-doc .rb-block[data-id="' + id + '"] .rb-text');
+        if (el) el.focus();
+    }, 0);
+}
+
+function rbSetActiveAlign(dir) {
+    const id = rbActiveTextBlockId;
+    const b = rbBlock(id);
+    if (!b || b.type !== 'text') return;
+    b.align = dir;
+    const el = document.querySelector('#rb-doc .rb-block[data-id="' + id + '"] .rb-text');
+    if (el) { el.style.textAlign = dir; el.focus(); }
+    rbUpdateToolbarState();
+}
+
+function rbUpdateToolbarState() {
+    const el = rbActiveTextEl();
+    ['bold', 'italic', 'underline', 'strikeThrough'].forEach(cmd => {
+        const btn = document.querySelector('.rb-rb-btn[data-cmd="' + cmd + '"]');
+        if (!btn) return;
+        let on = false;
+        try { on = el && document.queryCommandState(cmd); } catch (e) {}
+        btn.classList.toggle('active', !!on);
+    });
+    const b = rbBlock(rbActiveTextBlockId);
+    const isText = b && b.type === 'text';
+    const sel = document.getElementById('rb-style-select');
+    if (sel) sel.value = isText ? b.style : '';
+    document.querySelectorAll('.rb-rb-btn[data-align]').forEach(btn => {
+        const a = isText ? (b.align || 'left') : null;
+        btn.classList.toggle('active', a === btn.getAttribute('data-align'));
+    });
+}
 
 // ── Formatting helpers ──────────────────────────────────────────────
 function rbFmt(v, unit) {
