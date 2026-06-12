@@ -1,366 +1,375 @@
 {% extends 'admin/admin_base.html' %}
-
-{% block title %}Dashboard — RDHS Admin{% endblock %}
-{% block header %}Dashboard Overview{% endblock %}
+{% block title %}Dashboard{% endblock %}
+{% block breadcrumb_label %}Dashboard{% endblock %}
+{% block page_title %}System Overview{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* ── Stat Cards ─────────────────────────────── */
-    .dash-stats {
+    /* ── Stat Cards ── */
+    .stat-row {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 16px;
         margin-bottom: 24px;
     }
-    @media (max-width: 1100px) { .dash-stats { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 600px)  { .dash-stats { grid-template-columns: 1fr; } }
+    @media (max-width: 1100px) { .stat-row { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 580px)  { .stat-row { grid-template-columns: 1fr; } }
 
-    .ds-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 14px;
-        padding: 22px 24px 18px;
-        box-shadow: var(--card-shadow);
-        position: relative;
-        overflow: hidden;
-        transition: all 0.2s;
+    .sc {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px 22px;
+        box-shadow: var(--shadow);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
     }
-    .ds-card:hover { transform: translateY(-3px); box-shadow: var(--card-shadow-hover); }
-    .ds-card::after {
-        content: '';
-        position: absolute;
-        top: -20px; right: -20px;
-        width: 90px; height: 90px;
-        border-radius: 50%;
-        opacity: 0.12;
-        transition: transform 0.3s;
+    .sc-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin-bottom: 6px;
     }
-    .ds-card:hover::after   { transform: scale(1.3); }
-    .ds-card.blue::after    { background: #4F46E5; }
-    .ds-card.indigo::after  { background: #7C3AED; }
-    .ds-card.teal::after    { background: #0D9488; }
-    .ds-card.orange::after  { background: #EA580C; }
+    .sc-value {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.05em;
+        color: var(--text);
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+    .sc-sub { font-size: 0.72rem; font-weight: 600; color: #1d4ed8; }
+    .sc-icon {
+        width: 36px; height: 36px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--muted);
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
 
-    .ds-label {
-        font-size: 0.72rem; font-weight: 600;
-        text-transform: uppercase; letter-spacing: 0.07em;
-        color: var(--text-muted); margin-bottom: 6px;
-    }
-    .ds-value {
-        font-family: 'Outfit', 'Inter', sans-serif;
-        font-size: 2.6rem; font-weight: 800;
-        letter-spacing: -0.05em; line-height: 1;
-        color: var(--text-main); margin-bottom: 10px;
-        position: relative; z-index: 2;
-    }
-    .ds-sub { font-size: 0.8rem; color: var(--text-muted); }
-
-    /* ── Main Grid ──────────────────────────────── */
+    /* ── Main grid ── */
     .dash-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
+        grid-template-columns: 1fr 360px;
+        gap: 24px;
+        align-items: start;
     }
-    @media (max-width: 900px) { .dash-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 1000px) { .dash-grid { grid-template-columns: 1fr; } }
 
-    /* ── Quick Actions ──────────────────────────── */
-    .quick-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
+    /* ── Section label ── */
+    .section-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin-bottom: 12px;
     }
-    .qa-btn {
+
+    /* ── Activity list ── */
+    .activity-item {
         display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 20px 12px;
-        border-radius: 12px;
-        text-decoration: none;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .activity-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .act-icon {
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+    .act-icon.upload   { background: rgba(30,58,138,0.1);  color: #1e3a8a; }
+    .act-icon.compute  { background: rgba(29,78,216,0.1);  color: #1d4ed8; }
+    .act-icon.login    { background: rgba(29,78,216,0.1);  color: #1d4ed8; }
+    .act-icon.logout   { background: rgba(100,116,139,0.1); color: #475569; }
+    .act-icon.delete   { background: rgba(239,68,68,0.1);  color: #dc2626; }
+    .act-icon.user     { background: rgba(245,158,11,0.1); color: #b45309; }
+    .act-icon.other    { background: rgba(100,116,139,0.1); color: #475569; }
+
+    .act-body { flex: 1; min-width: 0; }
+    .act-title {
         font-size: 0.875rem;
         font-weight: 600;
-        transition: all 0.2s;
-        border: 1px solid transparent;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
-    .qa-btn:hover { transform: translateY(-2px); }
-    .qa-btn i {
-        font-size: 1.3rem;
-        width: 42px; height: 42px;
-        display: flex; align-items: center; justify-content: center;
-        border-radius: 50%;
-        background: #fff;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-        transition: transform 0.2s;
-    }
-    .qa-btn:hover i { transform: scale(1.15); }
-    .qa-btn.blue   { background: rgba(79,70,229,0.07);  color: #4F46E5;  border-color: rgba(79,70,229,0.15); }
-    .qa-btn.teal   { background: rgba(13,148,136,0.07); color: #0D9488;  border-color: rgba(13,148,136,0.15); }
-    .qa-btn.orange { background: rgba(234,88,12,0.07);  color: #EA580C;  border-color: rgba(234,88,12,0.15); }
-    .qa-btn.purple { background: rgba(124,58,237,0.07); color: #7C3AED;  border-color: rgba(124,58,237,0.15); }
-
-    /* ── Dataset badge ──────────────────────────── */
-    .dhs-badge {
-        display: inline-flex; align-items: center; gap: 5px;
-        padding: 3px 10px; border-radius: 999px;
-        font-size: 0.72rem; font-weight: 700;
-    }
-    .dhs-badge.ready   { background: rgba(16,185,129,0.1); color: var(--success); }
-    .dhs-badge.missing { background: rgba(245,158,11,0.1);  color: var(--warning); }
-
-    .dataset-row {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 8px 14px;
-        background: var(--bg-body);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        margin-bottom: 6px;
-        font-size: 0.82rem;
-    }
-    .dataset-row .tag {
-        font-family: monospace;
+    .act-desc {
         font-size: 0.78rem;
-        background: var(--primary-light);
-        color: var(--primary);
-        padding: 2px 7px;
-        border-radius: 4px;
+        color: var(--muted);
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .act-time {
+        font-size: 0.72rem;
+        color: var(--muted);
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding-top: 3px;
+    }
+
+    /* ── System Status ── */
+    .status-stack { display: flex; flex-direction: column; gap: 14px; }
+
+    .storage-card {
+        background: #0f172a;
+        border-radius: 12px;
+        padding: 20px;
+        color: #fff;
+    }
+    .storage-label {
+        font-size: 0.62rem;
         font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: rgba(255,255,255,0.4);
+        margin-bottom: 12px;
     }
+    .storage-bar-bg {
+        height: 6px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 99px;
+        margin-bottom: 12px;
+        overflow: hidden;
+    }
+    .storage-bar-fill {
+        height: 100%;
+        background: #1d4ed8;
+        border-radius: 99px;
+    }
+    .storage-pct {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.5);
+        text-align: right;
+        margin-top: -24px;
+        margin-bottom: 10px;
+    }
+    .storage-meta {
+        display: flex;
+        justify-content: space-between;
+    }
+    .storage-meta div { font-size: 0.72rem; color: rgba(255,255,255,0.5); }
+    .storage-meta strong { display: block; font-size: 1rem; font-weight: 700; color: #fff; margin-top: 2px; }
 
-    /* ── Computation log ────────────────────────── */
-    .log-row {
-        display: flex; align-items: flex-start; gap: 10px;
-        padding: 8px 0;
-        border-bottom: 1px solid var(--border-color);
-        font-size: 0.82rem;
+    .engine-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px 20px;
+        box-shadow: var(--shadow);
     }
-    .log-row:last-child { border-bottom: none; }
-    .log-dot {
-        width: 8px; height: 8px; border-radius: 50%;
-        margin-top: 5px; flex-shrink: 0;
+    .engine-label {
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin-bottom: 10px;
     }
-    .log-dot.ok  { background: var(--success); }
-    .log-dot.err { background: var(--danger); }
-
-    /* ── System Status ──────────────────────────── */
-    .status-dot {
-        width: 10px; height: 10px; border-radius: 50%;
-        background: var(--success);
-        box-shadow: 0 0 0 3px rgba(16,185,129,0.2);
-        animation: pulse-green 2s infinite; flex-shrink: 0;
-    }
-    @keyframes pulse-green {
-        0%, 100% { box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
-        50%       { box-shadow: 0 0 0 6px rgba(16,185,129,0.1); }
-    }
-    .stat-row {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 10px 14px;
-        background: var(--bg-body);
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
+    .engine-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         margin-bottom: 6px;
     }
-    .stat-row:last-child { margin-bottom: 0; }
+    .dot-green {
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        background: #1d4ed8;
+        box-shadow: 0 0 0 3px rgba(29,78,216,0.2);
+        animation: pulse 2s infinite;
+        flex-shrink: 0;
+    }
+    .dot-gray {
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        background: #94a3b8;
+        flex-shrink: 0;
+    }
+    @keyframes pulse {
+        0%,100% { box-shadow: 0 0 0 3px rgba(29,78,216,0.2); }
+        50%      { box-shadow: 0 0 0 6px rgba(29,78,216,0.08); }
+    }
+    .engine-status span { font-size: 0.875rem; font-weight: 700; color: var(--text); }
+    .engine-note { font-size: 0.75rem; color: var(--muted); }
+
+    .rounds-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px 20px;
+        box-shadow: var(--shadow);
+    }
+    .rounds-label {
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin-bottom: 8px;
+    }
+    .rounds-num {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        color: var(--text);
+        line-height: 1;
+    }
+    .rounds-sub { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+    .rounds-range { font-size: 0.8rem; font-weight: 600; color: var(--text); margin-top: 8px; }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- ── Stat Cards ─────────────────────────────────── -->
-<div class="dash-stats">
-
-    <div class="ds-card blue">
-        <div class="ds-label">Chapters</div>
-        <div class="ds-value">{{ total_categories|default:"0" }}</div>
-        <div class="ds-sub">Survey chapters loaded</div>
+<!-- Stat Cards -->
+<div class="stat-row">
+    <div class="sc">
+        <div>
+            <div class="sc-label">Survey Chapters</div>
+            <div class="sc-value">{{ total_categories|default:"0" }}</div>
+            <div class="sc-sub">Standard DHS structure</div>
+        </div>
+        <div class="sc-icon"><i class="fas fa-file-lines"></i></div>
     </div>
-
-    <div class="ds-card indigo">
-        <div class="ds-label">Indicators</div>
-        <div class="ds-value">{{ total_indicators|default:"0" }}</div>
-        <div class="ds-sub">Computed metrics</div>
+    <div class="sc">
+        <div>
+            <div class="sc-label">Active Indicators</div>
+            <div class="sc-value">{{ total_indicators|default:"0" }}</div>
+            <div class="sc-sub">Computed metrics</div>
+        </div>
+        <div class="sc-icon"><i class="fas fa-wave-square"></i></div>
     </div>
-
-    <div class="ds-card teal">
-        <div class="ds-label">Data Points</div>
-        <div class="ds-value">{{ total_values|default:"0" }}</div>
-        <div class="ds-sub">District-level values</div>
+    <div class="sc">
+        <div>
+            <div class="sc-label">Data Points</div>
+            <div class="sc-value">{{ total_values|default:"0" }}</div>
+            <div class="sc-sub">Across {{ total_districts|default:"0" }} districts</div>
+        </div>
+        <div class="sc-icon"><i class="fas fa-database"></i></div>
     </div>
-
-    <div class="ds-card orange">
-        <div class="ds-label">Districts</div>
-        <div class="ds-value">{{ total_districts|default:"0" }}</div>
-        <div class="ds-sub">Across Rwanda</div>
+    <div class="sc">
+        <div>
+            <div class="sc-label">Mapped Districts</div>
+            <div class="sc-value">{{ total_districts|default:"0" }}</div>
+            <div class="sc-sub">Rwanda National Scope</div>
+        </div>
+        <div class="sc-icon"><i class="fas fa-location-dot"></i></div>
     </div>
-
 </div>
 
-<!-- ── Main 2-column Grid ─────────────────────────── -->
+<!-- Main Grid -->
 <div class="dash-grid">
 
-    <!-- Left Column -->
-    <div style="display:flex;flex-direction:column;gap:20px;">
-
-        <!-- Quick Actions -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">Quick Actions</h2>
-            </div>
-            <div class="quick-actions">
-                <a href="{% url 'admin_dataset_upload' %}" class="qa-btn blue">
-                    <i class="fas fa-upload"></i>
-                    Upload Dataset
-                </a>
-                <a href="{% url 'admin_user_list' %}" class="qa-btn teal">
-                    <i class="fas fa-users"></i>
-                    Manage Users
-                </a>
-                <a href="{% url 'admin_audit_logs' %}" class="qa-btn orange">
-                    <i class="fas fa-shield-halved"></i>
-                    Audit Logs
-                </a>
-                <a href="{% url 'admin_user_create' %}" class="qa-btn purple">
-                    <i class="fas fa-user-plus"></i>
-                    New User
-                </a>
-            </div>
-        </div>
-
-        <!-- Uploaded Datasets -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">Uploaded Datasets</h2>
-                {% if uploaded_datasets %}
-                    <span class="dhs-badge ready">
-                        <i class="fas fa-circle-check"></i> {{ uploaded_datasets|length }} file{{ uploaded_datasets|length|pluralize }}
-                    </span>
-                {% else %}
-                    <span class="dhs-badge missing">
-                        <i class="fas fa-triangle-exclamation"></i> None uploaded
-                    </span>
-                {% endif %}
-            </div>
-
-            {% if uploaded_datasets %}
-                {% for ds in uploaded_datasets %}
-                <div class="dataset-row">
-                    <div style="display:flex;align-items:center;gap:8px;">
-                        <span class="tag">{{ ds.recode_type }}</span>
-                        <span style="font-weight:500;color:var(--text-main);">{{ ds.original_filename }}</span>
-                    </div>
-                    <span style="color:var(--text-muted);">{{ ds.year }}</span>
+    <!-- Recent Activity -->
+    <div class="card">
+        <div class="section-label">Recent Activity</div>
+        {% if recent_logs %}
+            {% for log in recent_logs %}
+            <div class="activity-item">
+                <div class="act-icon
+                    {% if log.action == 'UPLOAD' %}upload
+                    {% elif log.action == 'COMPUTE' %}compute
+                    {% elif log.action == 'LOGIN' %}login
+                    {% elif log.action == 'LOGOUT' %}logout
+                    {% elif log.action == 'DATA_DELETE' %}delete
+                    {% elif log.action == 'USER_CREATE' or log.action == 'USER_UPDATE' or log.action == 'USER_DELETE' %}user
+                    {% else %}other{% endif %}">
+                    {% if log.action == 'UPLOAD' %}<i class="fas fa-upload"></i>
+                    {% elif log.action == 'COMPUTE' %}<i class="fas fa-circle-check"></i>
+                    {% elif log.action == 'LOGIN' %}<i class="fas fa-circle-check"></i>
+                    {% elif log.action == 'LOGOUT' %}<i class="fas fa-right-from-bracket"></i>
+                    {% elif log.action == 'DATA_DELETE' %}<i class="fas fa-trash"></i>
+                    {% elif log.action == 'USER_CREATE' %}<i class="fas fa-user-plus"></i>
+                    {% elif log.action == 'USER_UPDATE' %}<i class="fas fa-user-pen"></i>
+                    {% elif log.action == 'USER_DELETE' %}<i class="fas fa-user-minus"></i>
+                    {% else %}<i class="fas fa-circle-info"></i>{% endif %}
                 </div>
-                {% endfor %}
-                <div style="margin-top:12px;">
-                    <a href="{% url 'admin_dataset_upload' %}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> Upload More
-                    </a>
+                <div class="act-body">
+                    <div class="act-title">{{ log.get_action_display }}</div>
+                    <div class="act-desc">{{ log.description }}</div>
                 </div>
-            {% else %}
-                <div class="alert alert-warning" style="margin-top:4px;">
-                    <i class="fas fa-triangle-exclamation"></i>
-                    <div>
-                        <strong>No datasets on disk.</strong><br>
-                        <span style="font-size:0.8rem;">
-                            {% if total_values > 0 %}
-                                {{ total_values|default:"0" }} computed value(s) exist from a previous upload.
-                                To refresh the data, re-upload the DHS .DTA files.
-                            {% else %}
-                                Upload DHS Stata (.DTA) files to automatically compute indicators.
-                            {% endif %}
-                        </span>
-                    </div>
-                </div>
-                <a href="{% url 'admin_dataset_upload' %}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-upload"></i> Upload Datasets
-                </a>
-            {% endif %}
-        </div>
-
-    </div><!-- /Left Column -->
-
-    <!-- Right Column -->
-    <div style="display:flex;flex-direction:column;gap:20px;">
-
-        <!-- System Status -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">System Status</h2>
+                <div class="act-time">{{ log.timestamp|timesince }} ago</div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-                <div class="status-dot"></div>
-                <span style="font-size:0.875rem;font-weight:600;color:var(--text-main);">System Online</span>
-            </div>
-            <div class="stat-row">
-                <span style="font-size:0.8rem;font-weight:500;color:var(--text-muted);">
-                    <i class="fas fa-layer-group" style="margin-right:6px;color:var(--primary);"></i>Chapters
-                </span>
-                <span style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:700;color:var(--text-main);">
-                    {{ total_categories|default:"—" }}
-                </span>
-            </div>
-            <div class="stat-row">
-                <span style="font-size:0.8rem;font-weight:500;color:var(--text-muted);">
-                    <i class="fas fa-chart-bar" style="margin-right:6px;color:#7C3AED;"></i>Indicators
-                </span>
-                <span style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:700;color:var(--text-main);">
-                    {{ total_indicators|default:"—" }}
-                </span>
-            </div>
-            <div class="stat-row">
-                <span style="font-size:0.8rem;font-weight:500;color:var(--text-muted);">
-                    <i class="fas fa-database" style="margin-right:6px;color:#0D9488;"></i>Data Points
-                </span>
-                <span style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:700;color:var(--text-main);">
-                    {{ total_values|default:"—" }}
-                </span>
-            </div>
-            <div class="stat-row">
-                <span style="font-size:0.8rem;font-weight:500;color:var(--text-muted);">
-                    <i class="fas fa-users" style="margin-right:6px;color:#EA580C;"></i>Admin Users
-                </span>
-                <span style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:700;color:var(--text-main);">
-                    {{ total_users|default:"—" }}
-                </span>
-            </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">Recent Activity</h2>
+            {% endfor %}
+            <div style="margin-top:16px;">
                 <a href="{% url 'admin_audit_logs' %}" class="btn btn-ghost btn-sm">
-                    View All <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i>
+                    View all logs <i class="fas fa-arrow-right" style="font-size:0.65rem;"></i>
                 </a>
             </div>
+        {% else %}
+            <p style="font-size:0.875rem;color:var(--muted);text-align:center;padding:32px 0;">
+                No activity recorded yet.
+            </p>
+        {% endif %}
+    </div>
 
-            {% if recent_logs %}
-                {% for log in recent_logs %}
-                <div class="log-row">
-                    <div class="log-dot {% if log.success %}ok{% else %}err{% endif %}"></div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-weight:600;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                            {{ log.get_action_display }}
-                        </div>
-                        <div style="color:var(--text-muted);font-size:0.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                            {{ log.description }}
-                        </div>
-                    </div>
-                    <div style="font-size:0.72rem;color:var(--text-muted);flex-shrink:0;margin-left:8px;">
-                        {{ log.timestamp|date:"M d, H:i" }}
-                    </div>
+    <!-- System Status -->
+    <div class="status-stack">
+
+        <!-- Storage -->
+        <div class="storage-card">
+            <div class="storage-label">Storage</div>
+            {% with pct=storage_mb|default:0 %}
+            <div class="storage-bar-bg">
+                <div class="storage-bar-fill" style="width: {% if storage_mb %}{% widthratio storage_mb 500 100 %}{% else %}0{% endif %}%;"></div>
+            </div>
+            {% endwith %}
+            <div class="storage-meta">
+                <div>
+                    <div>Raw Data</div>
+                    <strong>{{ storage_mb|default:"0" }} MB</strong>
                 </div>
-                {% endfor %}
+                <div style="text-align:right;">
+                    <div>Datasets</div>
+                    <strong>{{ uploaded_datasets|length }} file{{ uploaded_datasets|length|pluralize }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Computation Engine -->
+        <div class="engine-card">
+            <div class="engine-label">Computation Engine</div>
+            <div class="engine-status">
+                {% if engine_ok %}<div class="dot-green"></div><span>Operational</span>
+                {% else %}<div class="dot-gray"></div><span>No data computed</span>{% endif %}
+            </div>
+            <div class="engine-note">
+                {% if engine_ok %}{{ total_districts|default:"0" }} districts with verified data
+                {% else %}Upload datasets to begin computation{% endif %}
+            </div>
+        </div>
+
+        <!-- Survey Rounds -->
+        <div class="rounds-card">
+            <div class="rounds-label">Survey Rounds</div>
+            <div class="rounds-num">{{ survey_rounds|default:"0" }}</div>
+            <div class="rounds-sub">surveys processed</div>
+            {% if year_min and year_max %}
+            <div class="rounds-range">{{ year_min }} — {{ year_max }}</div>
             {% else %}
-                <p style="font-size:0.875rem;color:var(--text-muted);text-align:center;padding:20px 0;">
-                    No activity recorded yet.
-                </p>
+            <div class="rounds-range" style="color:var(--muted);">No processed surveys</div>
             {% endif %}
         </div>
 
-    </div><!-- /Right Column -->
+    </div>
 
 </div>
-
 {% endblock %}

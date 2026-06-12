@@ -17,7 +17,125 @@ const rbState = {
     subtitle: 'Demographic and Health Survey 2019–20 · NISR',
     blocks: [],
     selectedId: null,
+    draftId: null,       // id of the currently open draft (null = unsaved)
 };
+
+// ── Draft Library ────────────────────────────────────────────────────
+const RB_DRAFTS_KEY = 'rdhs_rb_drafts';
+
+function rbGetDrafts() {
+    try { return JSON.parse(localStorage.getItem(RB_DRAFTS_KEY)) || []; }
+    catch (e) { return []; }
+}
+function rbSetDrafts(arr) { localStorage.setItem(RB_DRAFTS_KEY, JSON.stringify(arr)); }
+
+function rbOpenDraftLibrary() {
+    const drafts = rbGetDrafts();
+    const list   = document.getElementById('rb-drafts-list');
+
+    if (!drafts.length) {
+        list.innerHTML =
+            '<div class="rb-drafts-empty">'
+            + '<i class="fas fa-folder-open"></i>'
+            + '<p>No saved drafts yet.</p>'
+            + '<p style="font-size:0.78rem;color:#94a3b8;">Click <strong>Save Draft</strong> to save your current work.</p>'
+            + '</div>';
+    } else {
+        list.innerHTML = drafts.map(function(d) {
+            var date    = new Date(d.updatedAt || d.createdAt);
+            var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            var isActive = d.id === rbState.draftId;
+            return '<div class="rb-draft-item' + (isActive ? ' active' : '') + '">'
+                + '<div class="rb-draft-info">'
+                +   '<div class="rb-draft-title">' + rbEsc(d.title || 'Untitled Report') + '</div>'
+                +   '<div class="rb-draft-meta">' + (d.blocks ? d.blocks.length : 0) + ' blocks &nbsp;·&nbsp; Last saved ' + dateStr + '</div>'
+                + '</div>'
+                + '<div class="rb-draft-actions">'
+                +   (isActive
+                        ? '<span class="rb-draft-badge">Active</span>'
+                        : '<button class="btn btn-primary btn-sm" onclick="rbLoadDraftById(\'' + d.id + '\')">Open</button>')
+                +   '<button class="btn btn-ghost btn-sm rb-draft-del" title="Delete" onclick="rbDeleteDraft(\'' + d.id + '\')"><i class="fas fa-trash"></i></button>'
+                + '</div>'
+                + '</div>';
+        }).join('');
+    }
+
+    document.getElementById('rb-drafts-modal').style.display = 'flex';
+}
+
+function rbCloseDraftLibrary() {
+    document.getElementById('rb-drafts-modal').style.display = 'none';
+}
+
+function rbLoadDraftById(id) {
+    var drafts = rbGetDrafts();
+    var draft  = drafts.find(function(d) { return d.id === id; });
+    if (!draft) return;
+
+    rbState.title      = draft.title    || 'Untitled DHS Report';
+    rbState.subtitle   = draft.subtitle || '';
+    rbState.blocks     = draft.blocks   || [];
+    rbState.draftId    = draft.id;
+    rbState.selectedId = null;
+
+    var titleEl = document.getElementById('rb-doc-title');
+    if (titleEl) titleEl.value = rbState.title;
+
+    rbRenderDoc();
+    rbRenderProps();
+    rbCloseDraftLibrary();
+
+    var status = document.getElementById('rb-doc-status');
+    if (status) {
+        status.textContent = '✓ Draft loaded';
+        status.style.color = '#16a34a';
+        setTimeout(function() { status.style.color = ''; rbUpdateStatus(); }, 2000);
+    }
+}
+
+function rbDeleteDraft(id) {
+    if (!confirm('Delete this draft? This cannot be undone.')) return;
+    rbSetDrafts(rbGetDrafts().filter(function(d) { return d.id !== id; }));
+    if (rbState.draftId === id) rbState.draftId = null;
+    rbOpenDraftLibrary();
+}
+
+function rbToggleProps() {
+    var panel = document.getElementById('rb-props-panel');
+    var icon  = document.getElementById('rb-props-toggle-icon');
+    var btn   = document.getElementById('rb-props-toggle-btn');
+    var collapsed = panel.classList.toggle('collapsed');
+    localStorage.setItem('rdhs_rb_props_collapsed', collapsed ? '1' : '0');
+    if (icon) icon.className = collapsed ? 'fas fa-chevron-left' : 'fas fa-chevron-right';
+    if (btn)  btn.title      = collapsed ? 'Expand panel' : 'Collapse panel';
+}
+
+function rbToggleLibrary() {
+    var lib  = document.getElementById('rb-library');
+    var icon = document.getElementById('rb-lib-toggle-icon');
+    var btn  = document.getElementById('rb-lib-toggle-btn');
+    var collapsed = lib.classList.toggle('collapsed');
+    localStorage.setItem('rdhs_rb_lib_collapsed', collapsed ? '1' : '0');
+    if (icon) icon.className = collapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left';
+    if (btn)  btn.title      = collapsed ? 'Expand panel' : 'Collapse panel';
+}
+
+function rbNewReport() {
+    if (!confirm('Start a new report? Unsaved changes will be lost.')) return;
+    rbState.title      = 'Untitled DHS Report';
+    rbState.subtitle   = 'Demographic and Health Survey 2019–20 · NISR';
+    rbState.blocks     = [];
+    rbState.draftId    = null;
+    rbState.selectedId = null;
+    var h = rbNewText('h1'); h.html = 'DHS Rwanda Analytics Report';
+    var p = rbNewText('p');  p.html = 'Drag indicators from the left to embed live visualizations, then add narrative text around them.';
+    rbState.blocks.push(h, p);
+    var titleEl = document.getElementById('rb-doc-title');
+    if (titleEl) titleEl.value = rbState.title;
+    rbRenderDoc();
+    rbRenderProps();
+    rbCloseDraftLibrary();
+}
 
 const rbGeo = { json: null, minLon: 0, maxLon: 0, minLat: 0, maxLat: 0, loaded: false };
 
@@ -80,10 +198,32 @@ function rbNewIndicator(chapterSlug, indicatorId) {
 
 // ── Init ────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    // Seed the document with a friendly starter heading + intro line
-    const h = rbNewText('h1'); h.html = 'DHS Rwanda Analytics Report';
-    const p = rbNewText('p'); p.html = 'Drag indicators from the left to embed live visualizations, then add narrative text around them.';
-    rbState.blocks.push(h, p);
+    // Restore saved draft, or seed with starter content for first-time visitors
+    if (!rbLoadDraft()) {
+        const h = rbNewText('h1'); h.html = 'DHS Rwanda Analytics Report';
+        const p = rbNewText('p'); p.html = 'Drag indicators from the left to embed live visualizations, then add narrative text around them.';
+        rbState.blocks.push(h, p);
+    }
+
+    // Restore library panel collapsed state
+    if (localStorage.getItem('rdhs_rb_lib_collapsed') === '1') {
+        var lib  = document.getElementById('rb-library');
+        var icon = document.getElementById('rb-lib-toggle-icon');
+        var btn  = document.getElementById('rb-lib-toggle-btn');
+        if (lib)  lib.classList.add('collapsed');
+        if (icon) icon.className = 'fas fa-chevron-right';
+        if (btn)  btn.title      = 'Expand panel';
+    }
+
+    // Restore properties panel collapsed state
+    if (localStorage.getItem('rdhs_rb_props_collapsed') === '1') {
+        var props     = document.getElementById('rb-props-panel');
+        var propsIcon = document.getElementById('rb-props-toggle-icon');
+        var propsBtn  = document.getElementById('rb-props-toggle-btn');
+        if (props)     props.classList.add('collapsed');
+        if (propsIcon) propsIcon.className = 'fas fa-chevron-left';
+        if (propsBtn)  propsBtn.title      = 'Expand panel';
+    }
 
     rbBuildLibrary();
     rbRenderDoc();
@@ -1133,4 +1273,63 @@ function rbPreview() {
     if (!w) { alert('Please allow pop-ups to preview the report.'); return; }
     w.document.write(rbFullExportHTML());
     w.document.close();
+}
+
+function rbSaveDraft() {
+    try {
+        var drafts  = rbGetDrafts();
+        var now     = new Date().toISOString();
+        var payload = {
+            title:    rbState.title    || 'Untitled Report',
+            subtitle: rbState.subtitle || '',
+            blocks:   JSON.parse(JSON.stringify(rbState.blocks)),
+            updatedAt: now,
+        };
+
+        if (rbState.draftId) {
+            var idx = drafts.findIndex(function(d) { return d.id === rbState.draftId; });
+            if (idx >= 0) {
+                payload.id        = rbState.draftId;
+                payload.createdAt = drafts[idx].createdAt || now;
+                drafts[idx]       = payload;
+            } else {
+                payload.id = rbState.draftId; payload.createdAt = now;
+                drafts.unshift(payload);
+            }
+        } else {
+            payload.id        = 'draft_' + Date.now();
+            payload.createdAt = now;
+            rbState.draftId   = payload.id;
+            drafts.unshift(payload);
+        }
+
+        rbSetDrafts(drafts);
+
+        var btn    = document.getElementById('rb-save-btn');
+        var status = document.getElementById('rb-doc-status');
+        var orig   = btn ? btn.innerHTML : '';
+        if (btn)    { btn.innerHTML = '<i class="fas fa-check"></i> Saved!'; btn.disabled = true; }
+        if (status) { status.textContent = '✓ Draft saved'; status.style.color = '#16a34a'; }
+        setTimeout(function() {
+            if (btn)    { btn.innerHTML = orig; btn.disabled = false; }
+            if (status) { status.style.color = ''; rbUpdateStatus(); }
+        }, 2000);
+    } catch (e) {
+        alert('Could not save draft: ' + e.message);
+    }
+}
+
+function rbLoadDraft() {
+    try {
+        var drafts = rbGetDrafts();
+        if (!drafts.length) return false;
+        var latest = drafts[0];
+        rbState.title    = latest.title    || 'Untitled DHS Report';
+        rbState.subtitle = latest.subtitle || '';
+        rbState.blocks   = latest.blocks   || [];
+        rbState.draftId  = latest.id;
+        var titleEl = document.getElementById('rb-doc-title');
+        if (titleEl) titleEl.value = rbState.title;
+        return true;
+    } catch (e) { return false; }
 }

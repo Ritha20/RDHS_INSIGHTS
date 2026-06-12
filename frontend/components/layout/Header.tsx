@@ -1,6 +1,6 @@
 'use client'
 
-import { Download } from 'lucide-react'
+import { Download, Sparkles } from 'lucide-react'
 
 interface HeaderProps {
   title?: string
@@ -35,6 +35,15 @@ export default function Header({ title, subtitle, onDownloadCSV }: HeaderProps) 
             Export CSV
           </button>
         )}
+        <a
+          href="https://nisr-askdhs-intelligence.base44.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 rounded-lg bg-blue-700 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-800"
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          ASK DHS
+        </a>
       </div>
     </header>
   )

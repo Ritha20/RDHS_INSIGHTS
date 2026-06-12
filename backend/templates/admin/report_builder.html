@@ -4,17 +4,25 @@
 {% block header %}Report Builder{% endblock %}
 
 {% block topbar_actions %}
-<button class="btn btn-ghost btn-sm" onclick="rbPreview()">
-    <i class="fas fa-eye"></i> Preview
-</button>
-<div style="position: relative;" id="rb-export-wrap">
-    <button class="btn btn-primary btn-sm" onclick="rbToggleExportMenu(event)">
-        <i class="fas fa-file-export"></i> Export <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i>
+<div style="display:flex;align-items:center;gap:8px;">
+    <button class="btn btn-ghost btn-sm" onclick="rbSaveDraft()" id="rb-save-btn">
+        <i class="fas fa-floppy-disk"></i> Save Draft
     </button>
-    <div id="rb-export-menu" class="rb-export-menu">
-        <button onclick="rbExport('pdf')"><i class="fas fa-print"></i> Print / Save as PDF</button>
-        <button onclick="rbExport('word')"><i class="fas fa-file-word"></i> Word Document (.doc)</button>
-        <button onclick="rbExport('ppt')"><i class="fas fa-file-powerpoint"></i> PowerPoint (.ppt)</button>
+    <button class="btn btn-ghost btn-sm" onclick="rbOpenDraftLibrary()">
+        <i class="fas fa-folder-open"></i> My Drafts
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="rbPreview()">
+        <i class="fas fa-eye"></i> Preview
+    </button>
+    <div style="position:relative;" id="rb-export-wrap">
+        <button class="btn btn-primary btn-sm" onclick="rbToggleExportMenu(event)">
+            <i class="fas fa-file-export"></i> Export <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i>
+        </button>
+        <div id="rb-export-menu" class="rb-export-menu">
+            <button onclick="rbExport('pdf')"><i class="fas fa-print"></i> Print / Save as PDF</button>
+            <button onclick="rbExport('word')"><i class="fas fa-file-word"></i> Word Document (.doc)</button>
+            <button onclick="rbExport('ppt')"><i class="fas fa-file-powerpoint"></i> PowerPoint (.ppt)</button>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -36,7 +44,7 @@
     .rb-panel {
         display: flex;
         flex-direction: column;
-        background: var(--bg-sidebar);
+        background: #fff;
         flex-shrink: 0;
     }
     .rb-panel-header {
@@ -57,7 +65,27 @@
     .rb-panel-body { flex: 1; overflow-y: auto; padding: 12px; }
 
     /* ── LEFT: Indicator Library ──────────────────── */
-    .rb-library { width: 290px; border-right: 1px solid var(--border-color); }
+    .rb-library {
+        width: 290px; border-right: 1px solid var(--border-color);
+        transition: width 0.22s ease; overflow: hidden;
+    }
+    .rb-library.collapsed { width: 40px; }
+    .rb-library.collapsed .rb-lib-header-content { display: none; }
+    .rb-library.collapsed .rb-panel-body { display: none; }
+    .rb-library.collapsed .rb-panel-header {
+        flex-direction: column; align-items: center;
+        justify-content: flex-start; padding: 12px 0;
+    }
+
+    .rb-lib-toggle {
+        background: none; border: none; cursor: pointer;
+        color: var(--text-muted); padding: 5px 7px; border-radius: 7px;
+        font-size: 0.78rem; flex-shrink: 0; margin-left: auto;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.12s, color 0.12s;
+    }
+    .rb-lib-toggle:hover { background: var(--primary-light); color: var(--primary); }
+    .rb-library.collapsed .rb-lib-toggle { margin-left: 0; margin-top: 4px; }
     .rb-search { position: relative; margin-bottom: 12px; }
     .rb-search i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem; }
     .rb-search input { padding-left: 32px; font-size: 0.8rem; }
@@ -273,7 +301,27 @@
     .rb-empty-doc i { font-size: 2.4rem; margin-bottom: 12px; color: #CBD5E1; }
 
     /* ── RIGHT: Properties ────────────────────────── */
-    .rb-props { width: 300px; border-left: 1px solid var(--border-color); }
+    .rb-props {
+        width: 300px; border-left: 1px solid var(--border-color);
+        transition: width 0.22s ease; overflow: hidden;
+    }
+    .rb-props.collapsed { width: 40px; }
+    .rb-props.collapsed .rb-props-header-content { display: none; }
+    .rb-props.collapsed .rb-panel-body { display: none; }
+    .rb-props.collapsed .rb-panel-header {
+        flex-direction: column; align-items: center;
+        justify-content: flex-start; padding: 12px 0;
+    }
+    .rb-props.collapsed .rb-props-toggle { margin-right: 0; margin-top: 4px; }
+
+    .rb-props-toggle {
+        background: none; border: none; cursor: pointer;
+        color: var(--text-muted); padding: 5px 7px; border-radius: 7px;
+        font-size: 0.78rem; flex-shrink: 0; margin-right: auto;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.12s, color 0.12s;
+    }
+    .rb-props-toggle:hover { background: var(--primary-light); color: var(--primary); }
     .rb-prop-group { margin-bottom: 16px; }
     .rb-prop-group > label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; display: block; }
     .rb-prop-row { display: flex; gap: 8px; }
@@ -290,9 +338,63 @@
     .rb-prov-list { max-height: 168px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; }
 
     @media (max-width: 1100px) {
-        .rb-library { width: 240px; }
-        .rb-props { width: 250px; }
+        .rb-library:not(.collapsed) { width: 240px; }
+        .rb-props:not(.collapsed) { width: 250px; }
     }
+
+    /* ── Draft Library Modal ──────────────────────── */
+    .rb-modal-overlay {
+        display: none;
+        position: fixed; inset: 0; z-index: 2000;
+        background: rgba(15,23,42,0.45);
+        align-items: center; justify-content: center;
+    }
+    .rb-modal {
+        background: #fff; border-radius: 14px;
+        width: 560px; max-width: 95vw; max-height: 80vh;
+        display: flex; flex-direction: column;
+        box-shadow: 0 20px 60px rgba(15,23,42,0.2);
+        overflow: hidden;
+    }
+    .rb-modal-head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 18px 22px; border-bottom: 1px solid var(--border-color);
+        flex-shrink: 0;
+    }
+    .rb-modal-head h2 {
+        font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700;
+        color: var(--text-main); display: flex; align-items: center; gap: 9px;
+    }
+    .rb-modal-head button { background: none; border: none; font-size: 1rem; cursor: pointer; color: var(--text-muted); padding: 4px; }
+    .rb-modal-head button:hover { color: var(--text-main); }
+    .rb-modal-toolbar {
+        padding: 12px 22px; border-bottom: 1px solid var(--border-color);
+        display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+        background: #f8faff;
+    }
+    .rb-modal-body { flex: 1; overflow-y: auto; padding: 16px 22px; }
+
+    .rb-draft-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 13px 14px; border-radius: 10px;
+        border: 1px solid var(--border-color); margin-bottom: 10px;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .rb-draft-item:hover { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.08); }
+    .rb-draft-item.active { border-color: #16a34a; background: #f0fdf4; }
+    .rb-draft-info { flex: 1; min-width: 0; }
+    .rb-draft-title { font-weight: 600; font-size: 0.88rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rb-draft-meta  { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; }
+    .rb-draft-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .rb-draft-badge { font-size: 0.68rem; font-weight: 700; background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; padding: 3px 10px; border-radius: 999px; }
+    .rb-draft-del { color: #ef4444 !important; }
+    .rb-draft-del:hover { background: #fef2f2 !important; }
+
+    .rb-drafts-empty {
+        text-align: center; padding: 50px 20px; color: var(--text-muted);
+    }
+    .rb-drafts-empty i { font-size: 2.2rem; opacity: 0.2; display: block; margin-bottom: 12px; }
+    .rb-drafts-empty p { margin: 4px 0; font-size: 0.85rem; }
 </style>
 {% endblock %}
 
@@ -300,10 +402,16 @@
 <div class="rb-workspace">
 
     <!-- ── LEFT: Indicator Library ── -->
-    <aside class="rb-panel rb-library">
-        <div class="rb-panel-header">
-            <h3><i class="fas fa-layer-group" style="color:var(--primary)"></i> Indicator Library</h3>
-            <p>Drag indicators &amp; elements onto the page</p>
+    <aside class="rb-panel rb-library" id="rb-library">
+        <div class="rb-panel-header" style="display:flex;align-items:center;">
+            <div class="rb-lib-header-content" style="flex:1;min-width:0;">
+                <h3><i class="fas fa-layer-group" style="color:var(--primary)"></i> Indicator Library</h3>
+                <p>Drag indicators &amp; elements onto the page</p>
+            </div>
+            <button class="rb-lib-toggle" id="rb-lib-toggle-btn"
+                    onclick="rbToggleLibrary()" title="Collapse panel">
+                <i class="fas fa-chevron-left" id="rb-lib-toggle-icon"></i>
+            </button>
         </div>
         <div class="rb-panel-body">
             <div class="rb-search">
@@ -415,10 +523,16 @@
     </section>
 
     <!-- ── RIGHT: Properties Panel ── -->
-    <aside class="rb-panel rb-props">
-        <div class="rb-panel-header">
-            <h3><i class="fas fa-sliders" style="color:var(--primary)"></i> Properties</h3>
-            <p id="rb-props-sub">Select a block to configure it</p>
+    <aside class="rb-panel rb-props" id="rb-props-panel">
+        <div class="rb-panel-header" style="display:flex;align-items:center;">
+            <button class="rb-props-toggle" id="rb-props-toggle-btn"
+                    onclick="rbToggleProps()" title="Collapse panel">
+                <i class="fas fa-chevron-right" id="rb-props-toggle-icon"></i>
+            </button>
+            <div class="rb-props-header-content" style="flex:1;min-width:0;">
+                <h3><i class="fas fa-sliders" style="color:var(--primary)"></i> Properties</h3>
+                <p id="rb-props-sub">Select a block to configure it</p>
+            </div>
         </div>
         <div class="rb-panel-body" id="rb-props-body">
             <!-- context-sensitive controls injected by JS -->
@@ -428,6 +542,26 @@
 
 <!-- Hidden iframe used for PDF printing -->
 <iframe id="rb-print-iframe" style="display:none;width:0;height:0;border:none;"></iframe>
+
+<!-- ── Draft Library Modal ── -->
+<div class="rb-modal-overlay" id="rb-drafts-modal" onclick="if(event.target===this)rbCloseDraftLibrary()">
+    <div class="rb-modal">
+        <div class="rb-modal-head">
+            <h2><i class="fas fa-folder-open" style="color:var(--primary)"></i> Saved Drafts</h2>
+            <button onclick="rbCloseDraftLibrary()" title="Close"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="rb-modal-toolbar">
+            <button class="btn btn-ghost btn-sm" onclick="rbNewReport()">
+                <i class="fas fa-plus"></i> New Report
+            </button>
+            <span style="flex:1"></span>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Drafts are saved in your browser</span>
+        </div>
+        <div class="rb-modal-body" id="rb-drafts-list">
+            <!-- populated by rbOpenDraftLibrary() -->
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}

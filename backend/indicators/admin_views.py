@@ -1,4 +1,5 @@
 import os
+import re
 import json
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -7,7 +8,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Value, CharField
+from django.db.models.functions import Concat
 
 from .models import (
     Category, Indicator, IndicatorValue, District, Province,
@@ -106,20 +108,51 @@ def admin_logout_view(request):
 
 @user_passes_test(admin_required, login_url='admin_login')
 def admin_dashboard_view(request):
-    recent_logs = SystemAuditLog.objects.select_related('user').all()[:10]
-    uploaded_datasets = DHSUploadedDataset.objects.all().order_by('recode_type')
+    survey_years      = list(DHSUploadedDataset.objects.values_list('year', flat=True).distinct())
+    uploaded_datasets = DHSUploadedDataset.objects.all().order_by('year', 'recode_type')
+    recent_logs       = SystemAuditLog.objects.select_related('user').all()[:5]
+
+    if survey_years:
+        total_values     = IndicatorValue.objects.filter(year__in=survey_years).count()
+        total_indicators = Indicator.objects.filter(year__in=survey_years).count()
+        total_categories = Category.objects.filter(
+            indicators__year__in=survey_years
+        ).distinct().count()
+        total_districts  = District.objects.filter(
+            level=District.DISTRICT,
+            indicator_values__year__in=survey_years,
+        ).distinct().count()
+    else:
+        total_values = total_indicators = total_categories = total_districts = 0
+
+    # Storage size — sum actual file sizes on disk
+    storage_bytes = 0
+    if os.path.exists(DHS_DATA_DIR):
+        for fname in os.listdir(DHS_DATA_DIR):
+            fpath = os.path.join(DHS_DATA_DIR, fname)
+            if os.path.isfile(fpath):
+                storage_bytes += os.path.getsize(fpath)
+    storage_mb = round(storage_bytes / (1024 * 1024), 1)
+
+    # Survey round stats — count years that have been processed (have IndicatorValues)
+    processed_years = list(IndicatorValue.objects.values_list('year', flat=True).distinct())
+    survey_rounds = len(processed_years)
+    year_min = min(processed_years) if processed_years else None
+    year_max = max(processed_years) if processed_years else None
+    engine_ok = total_values > 0
 
     context = {
-        'total_categories': Category.objects.count(),
-        'total_indicators': Indicator.objects.count(),
-        'total_values': IndicatorValue.objects.count(),
-        'total_districts': District.objects.filter(
-            level=District.DISTRICT,
-            indicator_values__isnull=False,
-        ).distinct().count(),
-        'total_users': User.objects.count(),
+        'total_categories':  total_categories,
+        'total_indicators':  total_indicators,
+        'total_values':      total_values,
+        'total_districts':   total_districts,
+        'recent_logs':       recent_logs,
         'uploaded_datasets': uploaded_datasets,
-        'recent_logs': recent_logs,
+        'storage_mb':        storage_mb,
+        'survey_rounds':     survey_rounds,
+        'year_min':          year_min,
+        'year_max':          year_max,
+        'engine_ok':         engine_ok,
     }
     return render(request, 'admin/dashboard.html', context)
 
@@ -304,7 +337,7 @@ def dataset_delete_view(request, pk):
             f"{recode_type} data have been removed. "
             "Other indicators are unaffected.",
         )
-        return redirect('admin_dashboard')
+        return redirect('admin_dataset_upload')
     return redirect('admin_dataset_upload')
 
 
@@ -419,51 +452,114 @@ def user_toggle_active_view(request, pk):
 
 @user_passes_test(admin_required, login_url='admin_login')
 def audit_log_view(request):
-    from datetime import datetime
-
-    all_logs = SystemAuditLog.objects.select_related('user').all()
-    total_count = all_logs.count()
-    success_count = all_logs.filter(success=True).count()
-    failed_count = all_logs.filter(success=False).count()
-
-    logs = all_logs
-    action_filter = request.GET.get('action', '')
-    user_filter = request.GET.get('user', '').strip()
+    q              = re.sub(r'\s+', ' ', request.GET.get('q', '').strip())[:200]
+    scope          = request.GET.get('scope', 'all')
     success_filter = request.GET.get('success', '')
-    date_from = request.GET.get('date_from', '').strip()
-    date_to = request.GET.get('date_to', '').strip()
+    date_from      = request.GET.get('date_from', '').strip()
 
-    if action_filter:
-        logs = logs.filter(action=action_filter)
-    if user_filter:
-        logs = logs.filter(user__username__icontains=user_filter)
+    from datetime import datetime as _dt
+    qs = SystemAuditLog.objects.select_related('user').order_by('-timestamp')
+
     if success_filter == '1':
-        logs = logs.filter(success=True)
+        qs = qs.filter(success=True)
     elif success_filter == '0':
+        qs = qs.filter(success=False)
+    if date_from:
+        try:
+            qs = qs.filter(timestamp__date__gte=_dt.strptime(date_from, '%Y-%m-%d').date())
+        except ValueError:
+            pass
+
+    qs = _audit_filter_qs(qs, q, scope)
+
+    paginator = Paginator(qs, 50)
+    page_obj  = paginator.get_page(request.GET.get('page', 1))
+
+    return render(request, 'admin/audit/list.html', {
+        'page_obj':       page_obj,
+        'q':              q,
+        'scope':          scope,
+        'success_filter': success_filter,
+        'date_from':      date_from,
+    })
+
+
+def _audit_action_codes_for(q):
+    q_lower = q.lower()
+    return [code for code, label in SystemAuditLog.ACTION_CHOICES
+            if q_lower in label.lower()]
+
+
+def _audit_filter_qs(logs, q, scope):
+    if scope == 'user':
+        logs = logs.filter(action__in=['USER_CREATE', 'USER_UPDATE', 'USER_DELETE'])
+    elif scope == 'session':
+        logs = logs.filter(action__in=['LOGIN', 'LOGOUT'])
+    elif scope == 'indicator':
+        logs = logs.filter(action='COMPUTE')
+    elif scope == 'dataset':
+        logs = logs.filter(action__in=['UPLOAD', 'DATA_DELETE'])
+    elif scope == 'ip':
+        logs = logs.filter(ip_address__isnull=False)
+
+    if not q:
+        return logs
+
+    matching_codes = _audit_action_codes_for(q)
+
+    if scope in ('user', 'session'):
+        return logs.filter(user__username__icontains=q)
+    if scope in ('indicator', 'dataset'):
+        return logs.filter(Q(description__icontains=q) | Q(details__icontains=q)).distinct()
+    if scope == 'ip':
+        return logs.filter(ip_address__icontains=q)
+    if scope == 'action':
+        qs = Q(action__icontains=q)
+        if matching_codes:
+            qs |= Q(action__in=matching_codes)
+        return logs.filter(qs)
+
+    qs = (Q(user__username__icontains=q) | Q(description__icontains=q) |
+          Q(details__icontains=q) | Q(ip_address__icontains=q) | Q(action__icontains=q))
+    if matching_codes:
+        qs |= Q(action__in=matching_codes)
+    return logs.filter(qs).distinct()
+
+
+def audit_search_api(request):
+    from datetime import datetime as _dt
+    q          = re.sub(r'\s+', ' ', request.GET.get('q', '').strip())[:200]
+    scope      = request.GET.get('scope', 'all')
+    outcome    = request.GET.get('success', '')
+    date_from  = request.GET.get('date_from', '').strip()
+
+    logs = SystemAuditLog.objects.select_related('user').all()
+
+    if outcome == '1':
+        logs = logs.filter(success=True)
+    elif outcome == '0':
         logs = logs.filter(success=False)
     if date_from:
         try:
-            logs = logs.filter(timestamp__date__gte=datetime.strptime(date_from, '%Y-%m-%d').date())
+            logs = logs.filter(
+                timestamp__date__gte=_dt.strptime(date_from, '%Y-%m-%d').date()
+            )
         except ValueError:
-            date_from = ''
-    if date_to:
-        try:
-            logs = logs.filter(timestamp__date__lte=datetime.strptime(date_to, '%Y-%m-%d').date())
-        except ValueError:
-            date_to = ''
+            pass
 
-    paginator = Paginator(logs, 30)
-    page_obj = paginator.get_page(request.GET.get('page'))
+    logs = _audit_filter_qs(logs, q, scope)
 
-    return render(request, 'admin/audit/list.html', {
-        'page_obj': page_obj,
-        'action_choices': SystemAuditLog.ACTION_CHOICES,
-        'action_filter': action_filter,
-        'user_filter': user_filter,
-        'success_filter': success_filter,
-        'date_from': date_from,
-        'date_to': date_to,
-        'total_count': total_count,
-        'success_count': success_count,
-        'failed_count': failed_count,
-    })
+    results = []
+    for log in logs[:200]:
+        results.append({
+            'ts_date':        log.timestamp.strftime('%Y-%m-%d'),
+            'ts_time':        log.timestamp.strftime('%H:%M'),
+            'username':       log.user.username if log.user else '—',
+            'ip':             log.ip_address or '—',
+            'action_display': log.get_action_display(),
+            'description':    log.description or '',
+            'details':        log.details or '',
+            'success':        log.success,
+        })
+
+    return JsonResponse({'logs': results, 'count': len(results)})

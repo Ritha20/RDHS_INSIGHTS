@@ -22,9 +22,10 @@ export function useSidebar() {
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false)
+
   const collapse = useCallback(() => setCollapsed(true), [])
-  const expand = useCallback(() => setCollapsed(false), [])
-  const toggle = useCallback(() => setCollapsed(c => !c), [])
+  const expand   = useCallback(() => setCollapsed(false), [])
+  const toggle   = useCallback(() => setCollapsed(c => !c), [])
 
   return (
     <SidebarContext.Provider value={{ collapsed, collapse, expand, toggle }}>

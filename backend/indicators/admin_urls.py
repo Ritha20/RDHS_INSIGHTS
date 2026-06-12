@@ -25,5 +25,6 @@ urlpatterns = [
     path('users/toggle/<int:pk>/', admin_views.user_toggle_active_view, name='admin_user_toggle'),
 
     # ── Audit Logs ─────────────────────────────────
-    path('audit-logs/', admin_views.audit_log_view, name='admin_audit_logs'),
+    path('audit-logs/',         admin_views.audit_log_view,    name='admin_audit_logs'),
+    path('audit-logs/search/',  admin_views.audit_search_api,  name='admin_audit_search'),
 ]

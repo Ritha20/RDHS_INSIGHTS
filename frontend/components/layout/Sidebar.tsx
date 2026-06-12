@@ -47,29 +47,46 @@ export default function Sidebar() {
         collapsed ? 'w-16' : 'w-64'
       )}
     >
-      {/* Logo */}
+      {/* Logo + single toggle at top */}
       <div className={cn(
-        'flex h-16 items-center gap-3 border-b border-white/10 shrink-0 overflow-hidden',
-        collapsed ? 'justify-center px-0' : 'px-4'
+        'flex h-16 items-center border-b border-white/10 shrink-0',
+        collapsed ? 'justify-center px-0' : 'px-4 gap-3'
       )}>
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white p-0.5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/nisr-logo.png"
-            alt="NISR Logo"
-            width={36}
-            height={36}
-            className="rounded object-contain"
-            style={{ width: 36, height: 36 }}
-          />
-        </div>
+        {/* Logo — hidden when collapsed so toggle stays centred */}
+        {!collapsed && (
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white p-0.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/nisr-logo.png"
+              alt="NISR Logo"
+              width={36}
+              height={36}
+              className="rounded object-contain"
+              style={{ width: 36, height: 36 }}
+            />
+          </div>
+        )}
+
+        {/* Title text */}
         <div
-          className="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out"
+          className="overflow-hidden whitespace-nowrap transition-all duration-300 ease-in-out flex-1"
           style={{ maxWidth: collapsed ? 0 : 180, opacity: collapsed ? 0 : 1 }}
         >
           <p className="text-sm font-bold text-white">RDHS Insights</p>
           <p className="text-[10px] text-nisr-cyan-light">Analytics Dashboard</p>
         </div>
+
+        {/* Toggle — always visible, single button */}
+        <button
+          onClick={toggle}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="shrink-0 flex items-center justify-center rounded-lg p-2 text-white/50 hover:bg-white/10 hover:text-white transition-colors duration-150"
+        >
+          {collapsed
+            ? <PanelLeftOpen className="h-4 w-4" />
+            : <PanelLeftClose className="h-4 w-4" />
+          }
+        </button>
       </div>
 
       {/* Search */}
@@ -156,22 +173,6 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Toggle button */}
-      <div className={cn(
-        'shrink-0 border-t border-white/10 px-2 py-2',
-        collapsed ? 'flex justify-center' : 'flex justify-end'
-      )}>
-        <button
-          onClick={toggle}
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className="flex items-center justify-center rounded-lg p-2 text-white/50 hover:bg-white/10 hover:text-white transition-colors duration-150"
-        >
-          {collapsed
-            ? <PanelLeftOpen className="h-4 w-4" />
-            : <PanelLeftClose className="h-4 w-4" />
-          }
-        </button>
-      </div>
 
       {/* Footer */}
       <div
