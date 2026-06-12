@@ -1,116 +1,7 @@
 {% extends 'admin/admin_base.html' %}
-{% block title %}System Audit Logs{% endblock %}
-{% block header %}Audit Logs{% endblock %}
-
-{% block extra_css %}
-<style>
-    .action-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-    }
-    .action-UPLOAD      { background: rgba(79,70,229,0.1);  color: #4F46E5; }
-    .action-COMPUTE     { background: rgba(124,91,248,0.1); color: #7C3AED; }
-    .action-LOGIN       { background: rgba(16,185,129,0.1); color: #059669; }
-    .action-LOGOUT      { background: rgba(107,114,128,0.1);color: #6B7280; }
-    .action-USER_CREATE { background: rgba(245,158,11,0.1); color: #D97706; }
-    .action-USER_UPDATE { background: rgba(245,158,11,0.1); color: #D97706; }
-    .action-USER_DELETE { background: rgba(239,68,68,0.1);  color: #DC2626; }
-    .action-DATA_DELETE { background: rgba(239,68,68,0.1);  color: #DC2626; }
-    .action-OTHER       { background: rgba(107,114,128,0.1);color: #6B7280; }
-
-    .status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 3px 10px;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-    .status-success { background: rgba(16,185,129,0.1); color: #059669; }
-    .status-failed  { background: rgba(239,68,68,0.1);  color: #DC2626; }
-
-    .ip-code {
-        font-family: 'Courier New', monospace;
-        font-size: 0.78rem;
-        color: var(--text-muted);
-        background: rgba(107,114,128,0.06);
-        padding: 2px 7px;
-        border-radius: 4px;
-        border: 1px solid var(--border-color);
-    }
-
-    .summary-bar {
-        display: flex;
-        gap: 16px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-    }
-    .summary-chip {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 12px 18px;
-        font-size: 0.85rem;
-        box-shadow: var(--card-shadow);
-    }
-    .summary-chip strong {
-        font-size: 1.3rem;
-        font-weight: 800;
-        letter-spacing: -0.04em;
-    }
-    .summary-chip.green strong { color: var(--success); }
-    .summary-chip.red   strong { color: var(--danger); }
-    .summary-chip.blue  strong { color: var(--primary); }
-    .summary-chip i { font-size: 1.1rem; opacity: 0.7; }
-    .summary-chip.blue  i { color: var(--primary); }
-    .summary-chip.green i { color: var(--success); }
-    .summary-chip.red   i { color: var(--danger); }
-
-    .details-toggle {
-        color: var(--primary);
-        font-size: 0.75rem;
-        cursor: pointer;
-        background: none;
-        border: none;
-        padding: 0;
-        font-family: inherit;
-        font-weight: 500;
-    }
-    .details-toggle:hover { text-decoration: underline; }
-    .details-box {
-        margin-top: 6px;
-        padding: 8px 10px;
-        background: rgba(79,70,229,0.04);
-        border-left: 3px solid var(--primary);
-        border-radius: 4px;
-        font-size: 0.78rem;
-        color: var(--text-muted);
-        display: none;
-    }
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: var(--text-muted);
-    }
-    .empty-state i {
-        font-size: 3rem;
-        margin-bottom: 16px;
-        opacity: 0.2;
-        display: block;
-        color: var(--primary);
-    }
-</style>
-{% endblock %}
+{% block title %}Audit Logs{% endblock %}
+{% block breadcrumb_label %}Audit Logs{% endblock %}
+{% block page_title %}System Audit Trail{% endblock %}
 
 {% block topbar_actions %}
 <a href="{% url 'admin_audit_logs' %}" class="btn btn-ghost btn-sm">
@@ -118,226 +9,256 @@
 </a>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ── Filter bar ── */
+    .audit-filters {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    /* Scope + search combined pill */
+    .search-combo {
+        display: flex;
+        align-items: stretch;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fff;
+        overflow: hidden;
+        flex: 1;
+        min-width: 280px;
+        max-width: 520px;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .search-combo:focus-within {
+        border-color: var(--blue-mid);
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+    .scope-select {
+        border: none !important;
+        border-right: 1px solid var(--border) !important;
+        border-radius: 0 !important;
+        background: #f8faff !important;
+        color: var(--blue-dark) !important;
+        font-weight: 600 !important;
+        font-size: 0.75rem !important;
+        padding: 0 10px !important;
+        width: auto !important;
+        flex-shrink: 0;
+        outline: none !important;
+        box-shadow: none !important;
+        cursor: pointer;
+        min-width: 130px;
+    }
+    .scope-select:focus { box-shadow: none !important; border-color: var(--border) !important; }
+
+    .search-inner {
+        position: relative;
+        flex: 1;
+        display: flex;
+        align-items: center;
+    }
+    .search-inner input {
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        outline: none !important;
+        padding-left: 34px !important;
+        width: 100%;
+        background: transparent !important;
+        font-size: 0.875rem;
+    }
+    .search-inner input:focus { box-shadow: none !important; }
+    .s-icon {
+        position: absolute; left: 11px; top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted); font-size: 0.78rem; pointer-events: none;
+    }
+    /* Spinner — rotate only, no translate in keyframes */
+    .s-spinner {
+        display: none;
+        position: absolute; left: 9px; top: 50%;
+        transform: translateY(-50%);
+        width: 16px; height: 16px; pointer-events: none;
+    }
+    .s-spinner svg { animation: auditSpin 0.7s linear infinite; }
+    @keyframes auditSpin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+    }
+
+    /* Other filter controls */
+    .audit-filters select.side-select {
+        min-width: 130px; width: auto; flex: 0;
+    }
+    .audit-filters input[type=date] { width: auto; flex: 0; }
+
+    .result-badge {
+        font-size: 0.75rem; color: var(--blue-dark);
+        background: var(--blue-xlight);
+        border: 1px solid var(--blue-light);
+        padding: 3px 10px; border-radius: 99px;
+        display: none; white-space: nowrap;
+    }
+
+    /* ── Table cells ── */
+    .outcome-pill {
+        display: inline-flex; align-items: center;
+        padding: 3px 10px; border-radius: 999px;
+        font-size: 0.7rem; font-weight: 700; letter-spacing: 0.02em;
+    }
+    .pill-success { background: rgba(29,78,216,0.1); color: #1d4ed8; }
+    .pill-failed  { background: rgba(239,68,68,0.1); color: #dc2626; }
+
+    .actor-cell { display: flex; align-items: center; gap: 8px; }
+    .actor-av {
+        width: 28px; height: 28px; border-radius: 50%;
+        background: #1e3a8a;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.65rem; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .actor-av.sys { background: #475569; }
+
+    .ts-cell { white-space: nowrap; }
+    .ts-date { font-size: 0.82rem; font-weight: 500; color: var(--text); }
+    .ts-time { font-size: 0.72rem; color: var(--muted); }
+
+    .ip-code {
+        font-family: 'Courier New', monospace; font-size: 0.75rem;
+        color: var(--muted); background: #f1f5f9;
+        padding: 2px 7px; border-radius: 4px;
+    }
+
+    .result-count {
+        font-size: 0.8rem; color: var(--muted);
+        padding: 14px 16px; border-top: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: space-between;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<!-- Summary Bar -->
-<div class="summary-bar">
-    <div class="summary-chip blue">
-        <i class="fas fa-list-check"></i>
-        <div>
-            <strong>{{ total_count }}</strong>
-            <div style="font-size:0.7rem;color:var(--muted);">Total Events</div>
-        </div>
-    </div>
-    <div class="summary-chip green">
-        <i class="fas fa-circle-check"></i>
-        <div>
-            <strong>{{ success_count }}</strong>
-            <div style="font-size:0.7rem;color:var(--muted);">Successful</div>
-        </div>
-    </div>
-    <div class="summary-chip red">
-        <i class="fas fa-circle-xmark"></i>
-        <div>
-            <strong>{{ failed_count }}</strong>
-            <div style="font-size:0.7rem;color:var(--muted);">Failed</div>
-        </div>
-    </div>
-    <div class="summary-chip" style="margin-left:auto;">
-        <i class="fas fa-clock" style="color:var(--muted);"></i>
-        <div style="font-size:0.78rem;color:var(--muted);">30 per page · Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</div>
-    </div>
-</div>
+{# Server config passed to JS via data attributes — no string manipulation #}
+<div id="auditMeta"
+     data-search-url="{% url 'admin_audit_search' %}"
+     data-initial-q="{{ q|default:'' }}"
+     data-initial-scope="{{ scope|default:'all' }}"
+     data-initial-success="{{ success_filter|default:'' }}"
+     data-initial-date="{{ date_from|default:'' }}"
+     style="display:none;"></div>
 
-<!-- Filters -->
-<form method="get" action="{% url 'admin_audit_logs' %}" class="filter-bar">
-    <div class="filter-group">
-        <label><i class="fas fa-tag"></i> Action Type</label>
-        <select name="action">
-            <option value="">All Actions</option>
-            {% for code, label in action_choices %}
-                <option value="{{ code }}" {% if action_filter == code %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
+<!-- ── Filter bar ── -->
+<div class="audit-filters">
+
+    {# Scope + search combined #}
+    <div class="search-combo">
+        <select class="scope-select" id="auditScope">
+            <option value="all"       {% if scope == 'all'       %}selected{% endif %}>All Audit Logs</option>
+            <option value="user"      {% if scope == 'user'      %}selected{% endif %}>User Management</option>
+            <option value="session"   {% if scope == 'session'   %}selected{% endif %}>Login / Session</option>
+            <option value="indicator" {% if scope == 'indicator' %}selected{% endif %}>Indicator</option>
+            <option value="dataset"   {% if scope == 'dataset'   %}selected{% endif %}>Dataset</option>
+            <option value="ip"        {% if scope == 'ip'        %}selected{% endif %}>IP Address</option>
+            <option value="action"    {% if scope == 'action'    %}selected{% endif %}>Search by Action</option>
         </select>
+        <div class="search-inner">
+            <i class="fas fa-magnifying-glass s-icon" id="auditSearchIcon"></i>
+            <span class="s-spinner" id="auditSearchSpinner">
+                <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+                    <circle cx="12" cy="12" r="10" stroke="#cbd5e1" stroke-width="3"/>
+                    <path d="M12 2 a10 10 0 0 1 10 10" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </span>
+            <input type="text"
+                   id="auditSearchInput"
+                   value="{{ q|default:'' }}"
+                   placeholder="Search audit logs…"
+                   autocomplete="off"
+                   spellcheck="false">
+        </div>
     </div>
-    <div class="filter-group">
-        <label><i class="fas fa-user"></i> Username</label>
-        <input type="text" name="user" value="{{ user_filter }}" placeholder="Search by user...">
-    </div>
-    <div class="filter-group">
-        <label><i class="fas fa-circle-half-stroke"></i> Status</label>
-        <select name="success">
-            <option value="">All Statuses</option>
-            <option value="1" {% if success_filter == '1' %}selected{% endif %}>✅ Success</option>
-            <option value="0" {% if success_filter == '0' %}selected{% endif %}>❌ Failed</option>
-        </select>
-    </div>
-    <div class="filter-group">
-        <label><i class="fas fa-calendar-day"></i> From Date</label>
-        <input type="date" name="date_from" value="{{ date_from }}">
-    </div>
-    <div class="filter-group">
-        <label><i class="fas fa-calendar-day"></i> To Date</label>
-        <input type="date" name="date_to" value="{{ date_to }}">
-    </div>
-    <div style="display:flex;gap:8px;align-items:flex-end;">
-        <button type="submit" class="btn btn-primary btn-sm">
-            <i class="fas fa-filter"></i> Filter
-        </button>
-        <a href="{% url 'admin_audit_logs' %}" class="btn btn-ghost btn-sm">
-            <i class="fas fa-xmark"></i> Clear
-        </a>
-    </div>
-</form>
 
-<!-- Active Filters Indicator -->
-{% if action_filter or user_filter or success_filter or date_from or date_to %}
-<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
-    <span style="font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">
-        <i class="fas fa-filter"></i> Active Filters:
-    </span>
+    <select class="side-select" id="auditOutcome">
+        <option value="">All outcomes</option>
+        <option value="1" {% if success_filter == '1' %}selected{% endif %}>Success</option>
+        <option value="0" {% if success_filter == '0' %}selected{% endif %}>Failed</option>
+    </select>
 
-    {% if action_filter %}
-    <a href="?user={{ user_filter }}&success={{ success_filter }}&date_from={{ date_from }}&date_to={{ date_to }}"
-       style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:600;background:rgba(79,126,247,0.15);color:#7ba7fb;text-decoration:none;">
-        <i class="fas fa-bolt"></i> Action: {{ action_filter }}
-        <i class="fas fa-xmark" style="opacity:0.7;"></i>
-    </a>
-    {% endif %}
+    <input type="date" id="auditDateFrom" value="{{ date_from|default:'' }}">
 
-    {% if user_filter %}
-    <a href="?action={{ action_filter }}&success={{ success_filter }}&date_from={{ date_from }}&date_to={{ date_to }}"
-       style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:600;background:rgba(124,91,248,0.15);color:#a78bfa;text-decoration:none;">
-        <i class="fas fa-user"></i> User: {{ user_filter }}
-        <i class="fas fa-xmark" style="opacity:0.7;"></i>
-    </a>
-    {% endif %}
+    <span class="result-badge" id="auditBadge"></span>
 
-    {% if success_filter == '1' %}
-    <a href="?action={{ action_filter }}&user={{ user_filter }}&date_from={{ date_from }}&date_to={{ date_to }}"
-       style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:600;background:rgba(34,197,94,0.15);color:#4ade80;text-decoration:none;">
-        <i class="fas fa-circle-check"></i> Status: Success
-        <i class="fas fa-xmark" style="opacity:0.7;"></i>
-    </a>
-    {% elif success_filter == '0' %}
-    <a href="?action={{ action_filter }}&user={{ user_filter }}&date_from={{ date_from }}&date_to={{ date_to }}"
-       style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:600;background:rgba(239,68,68,0.15);color:#f87171;text-decoration:none;">
-        <i class="fas fa-circle-xmark"></i> Status: Failed
-        <i class="fas fa-xmark" style="opacity:0.7;"></i>
-    </a>
-    {% endif %}
-
-    {% if date_from %}
-    <a href="?action={{ action_filter }}&user={{ user_filter }}&success={{ success_filter }}&date_to={{ date_to }}"
-       style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:600;background:rgba(245,158,11,0.15);color:#fbbf24;text-decoration:none;">
-        <i class="fas fa-calendar-day"></i> From: {{ date_from }}
-        <i class="fas fa-xmark" style="opacity:0.7;"></i>
-    </a>
-    {% endif %}
-
-    {% if date_to %}
-    <a href="?action={{ action_filter }}&user={{ user_filter }}&success={{ success_filter }}&date_from={{ date_from }}"
-       style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:600;background:rgba(245,158,11,0.15);color:#fbbf24;text-decoration:none;">
-        <i class="fas fa-calendar-day"></i> To: {{ date_to }}
-        <i class="fas fa-xmark" style="opacity:0.7;"></i>
-    </a>
-    {% endif %}
-
-    <span style="margin-left:4px; font-size:0.8rem; color:var(--muted);">
-        — {{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }} found
-    </span>
-
-    <a href="{% url 'admin_audit_logs' %}" style="margin-left:auto;font-size:0.78rem;color:var(--danger);text-decoration:none;">
+    <button type="button" id="auditClear" class="btn btn-ghost btn-sm"
+            style="display:{% if q or success_filter or date_from %}inline-flex{% else %}none{% endif %};">
         <i class="fas fa-xmark"></i> Clear all
-    </a>
+    </button>
 </div>
-{% endif %}
 
-<!-- Logs Table -->
+<!-- ── Table ── -->
 <div class="card" style="padding:0; overflow:hidden;">
     <div class="table-wrap">
         <table>
             <thead>
                 <tr>
-                    <th><i class="fas fa-clock" style="margin-right:5px;"></i>Timestamp</th>
-                    <th><i class="fas fa-user" style="margin-right:5px;"></i>User</th>
-                    <th><i class="fas fa-network-wired" style="margin-right:5px;"></i>IP Address</th>
-                    <th><i class="fas fa-bolt" style="margin-right:5px;"></i>Action</th>
-                    <th>Description</th>
-                    <th><i class="fas fa-signal" style="margin-right:5px;"></i>Status</th>
+                    <th>Timestamp</th>
+                    <th>Actor</th>
+                    <th>IP Address</th>
+                    <th>Action</th>
+                    <th>Outcome</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="auditTableBody">
                 {% for log in page_obj %}
                 <tr>
-                    <td style="white-space:nowrap; color:var(--text-muted); font-size:0.8rem;">
-                        <i class="fas fa-calendar-day" style="margin-right:4px;opacity:0.5;"></i>
-                        {{ log.timestamp|date:"Y-m-d" }}
-                        <br>
-                        <span style="font-size:0.75rem;">{{ log.timestamp|date:"H:i:s" }}</span>
+                    <td class="ts-cell">
+                        <div class="ts-date">{{ log.timestamp|date:"Y-m-d" }}</div>
+                        <div class="ts-time">{{ log.timestamp|date:"H:i:s" }}</div>
                     </td>
                     <td>
                         {% if log.user %}
-                            <div style="display:flex;align-items:center;gap:8px;">
-                                <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#818CF8);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:#fff;flex-shrink:0;">
-                                    {{ log.user.username|make_list|first|upper }}
-                                </div>
-                                <span style="font-weight:500;">{{ log.user.username }}</span>
-                            </div>
+                        <div class="actor-cell">
+                            <div class="actor-av">{{ log.user.username|make_list|first|upper }}</div>
+                            <span style="font-weight:500;font-size:0.875rem;">{{ log.user.username }}</span>
+                        </div>
                         {% else %}
-                            <span style="color:var(--text-muted);font-size:0.8rem;"><i class="fas fa-robot"></i> System</span>
+                        <div class="actor-cell">
+                            <div class="actor-av sys"><i class="fas fa-robot" style="font-size:0.6rem;"></i></div>
+                            <span style="color:var(--muted);font-size:0.8rem;">System Auto</span>
+                        </div>
                         {% endif %}
                     </td>
                     <td>
-                        {% if log.ip_address %}
-                            <span class="ip-code">{{ log.ip_address }}</span>
-                        {% else %}
-                            <span style="color:var(--text-muted);">—</span>
-                        {% endif %}
+                        {% if log.ip_address %}<span class="ip-code">{{ log.ip_address }}</span>
+                        {% else %}<span style="color:var(--muted);">—</span>{% endif %}
                     </td>
-                    <td>
-                        <span class="action-badge action-{{ log.action }}">
-                            {% if log.action == 'UPLOAD' %}<i class="fas fa-upload"></i>
-                            {% elif log.action == 'COMPUTE' %}<i class="fas fa-calculator"></i>
-                            {% elif log.action == 'LOGIN' %}<i class="fas fa-right-to-bracket"></i>
-                            {% elif log.action == 'LOGOUT' %}<i class="fas fa-right-from-bracket"></i>
-                            {% elif log.action == 'USER_CREATE' %}<i class="fas fa-user-plus"></i>
-                            {% elif log.action == 'USER_UPDATE' %}<i class="fas fa-user-pen"></i>
-                            {% elif log.action == 'USER_DELETE' %}<i class="fas fa-user-minus"></i>
-                            {% elif log.action == 'DATA_DELETE' %}<i class="fas fa-trash"></i>
-                            {% else %}<i class="fas fa-circle-info"></i>{% endif %}
-                            {{ log.get_action_display }}
-                        </span>
-                    </td>
-                    <td>
-                        <div style="font-size:0.85rem;">{{ log.description }}</div>
+                    <td style="font-size:0.82rem;color:var(--text);">
+                        <div style="font-weight:500;">{{ log.get_action_display }}</div>
+                        <div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">{{ log.description }}</div>
                         {% if log.details %}
-                            <button class="details-toggle" onclick="toggleDetails(this)">
-                                <i class="fas fa-chevron-down"></i> Show details
-                            </button>
-                            <div class="details-box">{{ log.details }}</div>
+                        <button class="btn-link details-toggle"
+                                style="font-size:0.72rem;margin-top:4px;color:var(--muted);">Show details</button>
+                        <div class="details-body"
+                             style="display:none;margin-top:6px;padding:8px 10px;background:#f8fafc;
+                                    border-left:3px solid #1d4ed8;border-radius:4px;font-size:0.75rem;color:var(--muted);">
+                            {{ log.details }}
+                        </div>
                         {% endif %}
                     </td>
                     <td>
-                        {% if log.success %}
-                            <span class="status-pill status-success">
-                                <i class="fas fa-circle-check"></i> Success
-                            </span>
-                        {% else %}
-                            <span class="status-pill status-failed">
-                                <i class="fas fa-circle-xmark"></i> Failed
-                            </span>
-                        {% endif %}
+                        {% if log.success %}<span class="outcome-pill pill-success">Success</span>
+                        {% else %}<span class="outcome-pill pill-failed">Failed</span>{% endif %}
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6">
-                        <div class="empty-state">
-                            <i class="fas fa-shield-halved"></i>
-                            <div style="font-size:1rem;font-weight:600;margin-bottom:6px;">No audit logs found</div>
-                            <div style="font-size:0.85rem;">System activity will appear here once admin actions are performed.</div>
-                        </div>
+                    <td colspan="5" style="text-align:center;padding:56px;color:var(--muted);">
+                        <i class="fas fa-shield-halved"
+                           style="font-size:2rem;opacity:0.15;display:block;margin-bottom:12px;"></i>
+                        No audit logs found.
                     </td>
                 </tr>
                 {% endfor %}
@@ -345,43 +266,285 @@
         </table>
     </div>
 
-    <!-- Pagination -->
-    {% if page_obj.has_other_pages %}
-    <div class="pagination" style="padding: 20px;">
-        {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}&action={{ action_filter }}&user={{ user_filter }}&success={{ success_filter }}&date_from={{ date_from }}&date_to={{ date_to }}" class="page-link">
-                <i class="fas fa-chevron-left"></i> Prev
-            </a>
-        {% endif %}
-
-        {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-                <span class="page-link active">{{ num }}</span>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a href="?page={{ num }}&action={{ action_filter }}&user={{ user_filter }}&success={{ success_filter }}&date_from={{ date_from }}&date_to={{ date_to }}" class="page-link">{{ num }}</a>
+    <div class="result-count">
+        <span id="auditCountLabel">
+            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }}
+            of {{ page_obj.paginator.count }} entries
+        </span>
+        {% if page_obj.has_other_pages %}
+        <div id="auditPager" class="pager-btns" style="display:flex;gap:8px;">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&q={{ q }}&scope={{ scope }}&success={{ success_filter }}&date_from={{ date_from }}"
+               style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;
+                      text-decoration:none;color:var(--text);font-size:0.8rem;background:#fff;">Previous</a>
             {% endif %}
-        {% endfor %}
-
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}&action={{ action_filter }}&user={{ user_filter }}&success={{ success_filter }}&date_from={{ date_from }}&date_to={{ date_to }}" class="page-link">
-                Next <i class="fas fa-chevron-right"></i>
-            </a>
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&q={{ q }}&scope={{ scope }}&success={{ success_filter }}&date_from={{ date_from }}"
+               style="padding:5px 14px;border:1px solid var(--border);border-radius:6px;
+                      text-decoration:none;color:var(--text);font-size:0.8rem;background:#fff;">Next</a>
+            {% endif %}
+        </div>
         {% endif %}
     </div>
-    {% endif %}
 </div>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function toggleDetails(btn) {
-    const box = btn.nextElementSibling;
-    const isOpen = box.style.display === 'block';
-    box.style.display = isOpen ? 'none' : 'block';
-    btn.innerHTML = isOpen
-        ? '<i class="fas fa-chevron-down"></i> Show details'
-        : '<i class="fas fa-chevron-up"></i> Hide details';
-}
+(function () {
+    'use strict';
+
+    /* ── Config from server ── */
+    var meta       = document.getElementById('auditMeta');
+    var SEARCH_URL = meta.dataset.searchUrl;
+
+    /* ── DOM refs ── */
+    var input      = document.getElementById('auditSearchInput');
+    var scopeSel   = document.getElementById('auditScope');
+    var outcomeSel = document.getElementById('auditOutcome');
+    var dateInput  = document.getElementById('auditDateFrom');
+    var tbody      = document.getElementById('auditTableBody');
+    var countLabel = document.getElementById('auditCountLabel');
+    var pager      = document.getElementById('auditPager');   /* may be null */
+    var badge      = document.getElementById('auditBadge');
+    var clearBtn   = document.getElementById('auditClear');
+    var spinner    = document.getElementById('auditSearchSpinner');
+    var icon       = document.getElementById('auditSearchIcon');
+
+    /* ── State ── */
+    var debounceTimer = null;
+    var activeCtrl    = null;
+    var lastParams    = null;   /* prevents duplicate fetches */
+
+    /* ── Helpers ── */
+    function esc(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function norm(s) { return s.replace(/\s+/g,' ').trim(); }
+    function hasFilters() {
+        return norm(input.value) !== '' || outcomeSel.value !== '' || dateInput.value !== '';
+    }
+
+    /* ── Build placeholder names from scope ── */
+    var PLACEHOLDERS = {
+        all:       'Search all audit log fields…',
+        user:      'Type a username to narrow user events…',
+        session:   'Type a username to narrow login events…',
+        indicator: 'Type to narrow indicator computation logs…',
+        dataset:   'Type a filename or year to narrow dataset logs…',
+        ip:        'Type an IP address to filter…',
+        action:    'Type an action name (e.g. Upload, Compute)…'
+    };
+    function updatePlaceholder() {
+        input.placeholder = PLACEHOLDERS[scopeSel.value] || 'Search audit logs…';
+    }
+
+    /* ── Build table rows from API response ── */
+    function buildRows(logs, q) {
+        if (!logs.length) {
+            var scopeLabel = scopeSel.options[scopeSel.selectedIndex].text;
+            var msg = q
+                ? 'No audit logs matching <strong>' + esc(q) + '</strong>'
+                  + (scopeSel.value !== 'all' ? ' in <em>' + esc(scopeLabel) + '</em>' : '') + '.'
+                : 'No audit logs found for the selected filters.';
+            return '<tr><td colspan="5" style="text-align:center;padding:56px;color:var(--muted);">'
+                + '<i class="fas fa-shield-halved" style="font-size:2rem;opacity:0.15;display:block;margin-bottom:12px;"></i>'
+                + msg + '</td></tr>';
+        }
+
+        return logs.map(function (l) {
+            var actor = l.username
+                ? '<div class="actor-cell">'
+                  + '<div class="actor-av">' + esc((l.username[0] || '?').toUpperCase()) + '</div>'
+                  + '<span style="font-weight:500;font-size:0.875rem;">' + esc(l.username) + '</span>'
+                  + '</div>'
+                : '<div class="actor-cell">'
+                  + '<div class="actor-av sys"><i class="fas fa-robot" style="font-size:0.6rem;"></i></div>'
+                  + '<span style="color:var(--muted);font-size:0.8rem;">System Auto</span>'
+                  + '</div>';
+
+            var ip = l.ip
+                ? '<span class="ip-code">' + esc(l.ip) + '</span>'
+                : '<span style="color:var(--muted);">—</span>';
+
+            var detailsHtml = '';
+            if (l.details) {
+                detailsHtml =
+                    '<button class="btn-link details-toggle"'
+                    + ' style="font-size:0.72rem;margin-top:4px;color:var(--muted);">Show details</button>'
+                    + '<div class="details-body"'
+                    + ' style="display:none;margin-top:6px;padding:8px 10px;background:#f8fafc;'
+                    + 'border-left:3px solid #1d4ed8;border-radius:4px;font-size:0.75rem;color:var(--muted);">'
+                    + esc(l.details) + '</div>';
+            }
+
+            var pill = l.success
+                ? '<span class="outcome-pill pill-success">Success</span>'
+                : '<span class="outcome-pill pill-failed">Failed</span>';
+
+            return '<tr>'
+                + '<td class="ts-cell">'
+                +   '<div class="ts-date">' + esc(l.ts_date) + '</div>'
+                +   '<div class="ts-time">' + esc(l.ts_time) + '</div>'
+                + '</td>'
+                + '<td>' + actor + '</td>'
+                + '<td>' + ip + '</td>'
+                + '<td style="font-size:0.82rem;color:var(--text);">'
+                +   '<div style="font-weight:500;">' + esc(l.action_display) + '</div>'
+                +   '<div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">' + esc(l.description) + '</div>'
+                +   detailsHtml
+                + '</td>'
+                + '<td>' + pill + '</td>'
+                + '</tr>';
+        }).join('');
+    }
+
+    /* ── Apply results — preserves focus + cursor position ── */
+    function applyResults(data, q) {
+        var wasFocused = (document.activeElement === input);
+        var selStart   = input.selectionStart;
+        var selEnd     = input.selectionEnd;
+
+        tbody.innerHTML = buildRows(data.logs, q);
+
+        if (wasFocused) {
+            input.focus();
+            try { input.setSelectionRange(selStart, selEnd); } catch (_) {}
+        }
+
+        /* Count label */
+        var n = data.count;
+        countLabel.textContent = n + ' entr' + (n === 1 ? 'y' : 'ies') + ' found';
+
+        /* Badge */
+        if (hasFilters()) {
+            badge.textContent   = n + ' result' + (n !== 1 ? 's' : '');
+            badge.style.display = 'inline';
+        } else {
+            badge.style.display = 'none';
+        }
+
+        /* Pager only useful without active text filter */
+        if (pager) pager.style.display = (norm(q) || outcomeSel.value || dateInput.value) ? 'none' : 'flex';
+    }
+
+    /* ── Fetch ── */
+    function doSearch() {
+        var q       = norm(input.value);
+        var scope   = scopeSel.value;
+        var outcome = outcomeSel.value;
+        var date    = dateInput.value;
+
+        var params = 'q='       + encodeURIComponent(q)
+                   + '&scope='   + encodeURIComponent(scope)
+                   + '&success=' + encodeURIComponent(outcome)
+                   + '&date_from=' + encodeURIComponent(date);
+
+        if (params === lastParams) return;   /* nothing changed */
+        lastParams = params;
+
+        clearBtn.style.display = hasFilters() ? 'inline-flex' : 'none';
+
+        if (activeCtrl) activeCtrl.abort();
+        activeCtrl = new AbortController();
+
+        spinner.style.display = 'inline-block';
+        icon.style.display    = 'none';
+
+        var url = new URL(SEARCH_URL, window.location.origin);
+        url.search = params;
+
+        fetch(url.toString(), {
+            signal:  activeCtrl.signal,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function (r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        })
+        .then(function (data) {
+            spinner.style.display = 'none';
+            icon.style.display    = 'inline';
+            applyResults(data, q);
+            /* Update URL bar AFTER results arrive — avoids mid-keystroke navigation events */
+            try {
+                var newHref = hasFilters()
+                    ? location.pathname + '?' + params
+                    : location.pathname;
+                history.replaceState(null, '', newHref);
+            } catch (_) {}
+        })
+        .catch(function (err) {
+            if (err.name === 'AbortError') return;
+            spinner.style.display = 'none';
+            icon.style.display    = 'inline';
+        });
+    }
+
+    /* ── Event wiring ── */
+
+    /* Text input: debounced 400ms */
+    input.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(doSearch, 400);
+    });
+
+    /* Enter: fire immediately */
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            clearTimeout(debounceTimer);
+            doSearch();
+        }
+    });
+
+    /* Scope change: update placeholder + fire immediately */
+    scopeSel.addEventListener('change', function () {
+        updatePlaceholder();
+        clearTimeout(debounceTimer);
+        lastParams = null;   /* force re-fetch even if q unchanged */
+        doSearch();
+    });
+
+    /* Outcome + date: fire immediately */
+    outcomeSel.addEventListener('change', function () {
+        clearTimeout(debounceTimer);
+        doSearch();
+    });
+    dateInput.addEventListener('change', function () {
+        clearTimeout(debounceTimer);
+        doSearch();
+    });
+
+    /* Clear all */
+    clearBtn.addEventListener('click', function () {
+        input.value      = '';
+        scopeSel.value   = 'all';
+        outcomeSel.value = '';
+        dateInput.value  = '';
+        lastParams       = null;
+        updatePlaceholder();
+        clearTimeout(debounceTimer);
+        doSearch();
+        input.focus();
+    });
+
+    /* "Show details" toggle — event delegation works on dynamically rendered rows */
+    tbody.addEventListener('click', function (e) {
+        var btn = e.target.closest('.details-toggle');
+        if (!btn) return;
+        var box  = btn.nextElementSibling;
+        var open = box.style.display === 'block';
+        box.style.display = open ? 'none' : 'block';
+        btn.textContent   = open ? 'Show details' : 'Hide details';
+    });
+
+    /* Set initial placeholder */
+    updatePlaceholder();
+
+})();
 </script>
 {% endblock %}

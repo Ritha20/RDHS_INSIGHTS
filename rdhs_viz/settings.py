@@ -55,7 +55,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'indicators.admin_middleware.AdminAccessMiddleware',
 ]
 
 ROOT_URLCONF = 'rdhs_viz.urls'
@@ -114,7 +113,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Kigali'
 
 USE_I18N = True
 
@@ -132,8 +131,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# Authentication
-LOGIN_URL = '/admin-panel/login/'
-LOGIN_REDIRECT_URL = '/admin-panel/'
-LOGOUT_REDIRECT_URL = '/admin-panel/login/'
+# ── Email ──────────────────────────────────────────
+# When RESEND_API_KEY is set the system uses Resend for delivery.
+# Leave it empty to fall back to Django's console backend (prints to terminal).
+RESEND_API_KEY    = 're_8ULP7vkb_Jc8cRZxZfEBUc5BkVQQr6Dg9'           # e.g. 're_xxxxxxxxxxxxxxxx'
+DEFAULT_FROM_EMAIL = 'RDHS Insights <noreply@rdhs.gov.rw>'
+
+# Fallback Django email backend (used when RESEND_API_KEY is empty)
+EMAIL_BACKEND     = 'django.core.mail.backends.console.EmailBackend'
+
+SITE_URL = 'http://127.0.0.1:8000'  # Update to production URL before deploying
+
 

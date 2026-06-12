@@ -1,29 +1,23 @@
 import os
 import re
-import json
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
+from django.http import JsonResponse
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Value, CharField
+from django.db.models.functions import Concat
 
 from .models import (
     Category, Indicator, IndicatorValue, District, Province,
-    DHSUploadedDataset, SystemAuditLog
+    DHSUploadedDataset, SystemAuditLog, Invitation,
 )
-from .forms import CategoryForm, IndicatorForm, DataValueForm
 
 
 # ─────────────────────────────────────────────────
 # HELPERS
 # ─────────────────────────────────────────────────
-
-def admin_required(user):
-    return user.is_authenticated and (user.is_staff or user.is_superuser)
-
 
 def get_client_ip(request):
     x_forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -50,7 +44,7 @@ RECODE_MAP = {
 
 
 def identify_recode(filename):
-    """Return the recode key (HR/PR/IR…) from a filename."""
+    """Return the recode key (HR/PR/IR…) from a DHS filename."""
     name = filename.lower()
     for code in RECODE_MAP:
         if code in name:
@@ -59,73 +53,126 @@ def identify_recode(filename):
 
 
 
-
 # ─────────────────────────────────────────────────
-# AUTH
+# HELPERS
 # ─────────────────────────────────────────────────
 
-def admin_login_view(request):
-    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
-        return redirect('admin_dashboard')
+def _purge_orphaned_indicators():
+    """
+    Delete any Indicator / IndicatorValue / Category records that no longer
+    have a corresponding uploaded dataset.
 
-    context = {}
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
+    Two cases are handled:
+    1. Indicators for a year where NO dataset exists at all.
+    2. Indicators for a year where some datasets still exist but the specific
+       recode types required by that indicator are all gone.
+    """
+    from .dhs_indicator import INDICATORS as _IND_REGISTRY
 
-        if user is not None:
-            if user.is_staff or user.is_superuser:
-                login(request, user)
-                audit(request, 'LOGIN', f'Admin login: {username}')
-                return redirect(request.GET.get('next', 'admin_dashboard'))
-            else:
-                context['error_message'] = "Access denied. Admin privileges required."
-        else:
-            context['error_message'] = "Invalid username or password."
+    uploaded_years = set(
+        DHSUploadedDataset.objects.values_list('year', flat=True).distinct()
+    )
 
-    return render(request, 'admin/admin_login.html', context)
+    # Case 1: years with no datasets at all → nuke everything for those years
+    Indicator.objects.exclude(year__in=uploaded_years).delete()
 
+    # Case 2: years that still have SOME datasets → check per-indicator requirements
+    for year in uploaded_years:
+        remaining_recodes = set(
+            DHSUploadedDataset.objects.filter(year=year)
+            .values_list('recode_type', flat=True)
+        )
+        orphaned_names = [
+            name
+            for chapter_inds in _IND_REGISTRY.values()
+            for name, meta in chapter_inds.items()
+            if not set(meta['req']).issubset(remaining_recodes)
+        ]
+        if orphaned_names:
+            IndicatorValue.objects.filter(
+                indicator__name__in=orphaned_names, year=year
+            ).delete()
+            Indicator.objects.filter(
+                name__in=orphaned_names, year=year
+            ).delete()
 
-def admin_logout_view(request):
-    audit(request, 'LOGOUT', f'Admin logout: {request.user.username}')
-    logout(request)
-    return redirect('admin_login')
+    # Remove categories that now have no indicators left
+    Category.objects.filter(indicators__isnull=True).delete()
 
 
 # ─────────────────────────────────────────────────
 # DASHBOARD
 # ─────────────────────────────────────────────────
 
-@user_passes_test(admin_required, login_url='admin_login')
 def admin_dashboard_view(request):
-    datasets = DHSUploadedDataset.objects.all().order_by('recode_type')
-    recent_logs = SystemAuditLog.objects.select_related('user').all()[:10]
+    import os as _os
+    recent_logs = SystemAuditLog.objects.select_related('user').all()[:5]
+    uploaded_datasets = DHSUploadedDataset.objects.all().order_by('recode_type')
+
+    # Storage: sum of DTA file sizes
+    dhs_data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'DHS', 'data'))
+    storage_mb = 0
+    if _os.path.exists(dhs_data_dir):
+        for fname in _os.listdir(dhs_data_dir):
+            fp = _os.path.join(dhs_data_dir, fname)
+            if _os.path.isfile(fp):
+                storage_mb += _os.path.getsize(fp)
+    storage_mb = round(storage_mb / (1024 * 1024), 1)
+
+    # Survey rounds — only years that actually have uploaded datasets
+    survey_years = list(
+        DHSUploadedDataset.objects.values_list('year', flat=True).distinct().order_by('year')
+    )
+
+    # All stats scoped to years that have uploaded datasets so orphaned rows
+    # left over from datasets deleted outside the normal flow never inflate counts.
+    if survey_years:
+        total_values     = IndicatorValue.objects.filter(year__in=survey_years).count()
+        total_indicators = Indicator.objects.filter(year__in=survey_years).count()
+        total_categories = Category.objects.filter(
+            indicators__year__in=survey_years
+        ).distinct().count()
+        total_districts  = District.objects.filter(
+            indicator_values__year__in=survey_years,
+            province__name__in=[
+                'Kigali City', 'Southern Province', 'Western Province',
+                'Northern Province', 'Eastern Province',
+            ]
+        ).exclude(
+            name__in=[
+                'Kigali City', 'Southern Province', 'Western Province',
+                'Northern Province', 'Eastern Province',
+            ]
+        ).distinct().count()
+    else:
+        total_values = total_indicators = total_categories = total_districts = 0
 
     context = {
-        'total_categories': Category.objects.count(),
-        'total_indicators': Indicator.objects.count(),
-        'total_values': IndicatorValue.objects.count(),
-        'total_districts': District.objects.filter(
-            province__name__in=['Kigali City','Southern Province','Western Province','Northern Province','Eastern Province']
-        ).exclude(
-            name__in=['Kigali City','Southern Province','Western Province','Northern Province','Eastern Province']
-        ).count(),
-        'total_users': User.objects.count(),
-        'uploaded_datasets': datasets,
-        'recent_logs': recent_logs,
-        'categories': Category.objects.all().order_by('name'),
+        'total_categories': total_categories,
+        'total_indicators': total_indicators,
+        'total_values':     total_values,
+        'total_districts':  total_districts,
+        'total_users':      User.objects.count(),
+        'uploaded_datasets': uploaded_datasets,
+        'recent_logs':      recent_logs,
+        'storage_mb':       storage_mb,
+        'survey_rounds':    len(survey_years),
+        'year_min':         survey_years[0]  if survey_years else None,
+        'year_max':         survey_years[-1] if survey_years else None,
+        'engine_ok':        total_values > 0,
     }
     return render(request, 'admin/dashboard.html', context)
 
 
 # ─────────────────────────────────────────────────
-# DATASET UPLOAD
+# DATASET UPLOAD  (triggers background computation)
 # ─────────────────────────────────────────────────
 
-@user_passes_test(admin_required, login_url='admin_login')
 def dataset_upload_view(request):
-    """Upload one or more .dta files. Stores them in DHS/data/ and records metadata."""
+    """
+    Upload one or more .dta files.  After saving them to DHS/data/, a
+    background thread automatically computes all indicators for the year.
+    """
     if not os.path.exists(DHS_DATA_DIR):
         os.makedirs(DHS_DATA_DIR)
 
@@ -153,305 +200,297 @@ def dataset_upload_view(request):
                 for chunk in f.chunks():
                     dest.write(chunk)
 
-            # Read metadata quickly
-            try:
-                import pyreadstat
-                _, meta = pyreadstat.read_dta(target_path, metadataonly=True)
-                num_rows = meta.number_rows
-                num_vars = len(meta.column_names)
-            except Exception:
-                num_rows = None
-                num_vars = None
-
-            DHSUploadedDataset.objects.update_or_create(
-                recode_type=recode, year=year,
+            ds, _ = DHSUploadedDataset.objects.update_or_create(
+                recode_type=recode,
+                year=year,
                 defaults={
                     'original_filename': f.name,
                     'file_path': target_path,
                     'uploaded_by': request.user,
-                    'num_rows': num_rows,
-                    'num_vars': num_vars,
-                }
+                    'num_rows': None,
+                    'num_vars': None,
+                },
             )
+            audit(
+                request, 'UPLOAD',
+                f"Uploaded {recode} dataset ({year})",
+                details=f"File: {f.name}",
+            )
+            # Read row/var counts in the background — does not block this request
+            from .tasks import trigger_metadata_backfill
+            trigger_metadata_backfill(ds.pk, target_path)
             saved += 1
-            audit(request, 'UPLOAD',
-                  f"Uploaded {recode} dataset ({year})",
-                  details=f"File: {f.name}, Rows: {num_rows}, Vars: {num_vars}")
 
-        messages.success(request, f"Successfully uploaded {saved} dataset(s) for year {year}.")
+        if saved:
+            messages.success(
+                request,
+                f"Uploaded {saved} dataset(s) for year {year}. "
+                "Indicator computation is running in the background — "
+                "results will appear in the dashboard shortly.",
+            )
+            from .tasks import trigger_indicator_computation
+            trigger_indicator_computation(request.user.pk, year)
+
         return redirect('admin_dataset_upload')
 
     uploaded = DHSUploadedDataset.objects.all().order_by('year', 'recode_type')
     return render(request, 'admin/data/upload.html', {'uploaded': uploaded})
 
 
-@user_passes_test(admin_required, login_url='admin_login')
 def dataset_delete_view(request, pk):
     ds = get_object_or_404(DHSUploadedDataset, pk=pk)
     if request.method == 'POST':
+        recode = ds.recode_type
+        year = ds.year
+
         try:
             if os.path.exists(ds.file_path):
                 os.remove(ds.file_path)
         except OSError:
             pass
+
         desc = str(ds)
-        ds.delete()
-        audit(request, 'DATA_DELETE', f"Deleted dataset: {desc}")
-        messages.success(request, f"Deleted dataset {desc}.")
+
+        # Snapshot counts BEFORE purge for the audit message
+        ind_before = Indicator.objects.count()
+        val_before = IndicatorValue.objects.count()
+
+        ds.delete()  # remove dataset record (and physical file above)
+
+        # Purge any indicators / values whose required datasets are now missing
+        _purge_orphaned_indicators()
+
+        deleted_inds = ind_before - Indicator.objects.count()
+        deleted_vals = val_before - IndicatorValue.objects.count()
+
+        audit(
+            request, 'DATA_DELETE',
+            f"Deleted dataset: {desc}",
+            details=(
+                f"Removed {deleted_inds} indicator(s) and {deleted_vals} value(s) "
+                f"linked to {recode} recode for year {year}. "
+                "Re-uploading this dataset will recompute them automatically."
+            ),
+        )
+        messages.success(
+            request,
+            f"Deleted '{desc}' and removed {deleted_inds} related indicator(s). "
+            "Re-upload the file to recompute.",
+        )
     return redirect('admin_dataset_upload')
-
-
-# ─────────────────────────────────────────────────
-# VARIABLE EXPLORER
-# ─────────────────────────────────────────────────
-
-@user_passes_test(admin_required, login_url='admin_login')
-def dataset_variables_view(request):
-    """Read metadata from uploaded .dta files and show all variable names/labels."""
-    variables = []
-    datasets = DHSUploadedDataset.objects.all().order_by('recode_type')
-    selected_recode = request.GET.get('recode', '')
-    search_q = request.GET.get('q', '').lower()
-
-    for ds in datasets:
-        if selected_recode and ds.recode_type != selected_recode:
-            continue
-        if not os.path.exists(ds.file_path):
-            continue
-        try:
-            import pyreadstat
-            _, meta = pyreadstat.read_dta(ds.file_path, metadataonly=True)
-            labels = meta.column_labels or {}
-            for col in meta.column_names:
-                label = labels.get(col, '') if isinstance(labels, dict) else ''
-                if search_q and search_q not in col.lower() and search_q not in label.lower():
-                    continue
-                variables.append({
-                    'recode': ds.recode_type,
-                    'year': ds.year,
-                    'name': col,
-                    'label': label,
-                })
-        except Exception as e:
-            messages.warning(request, f"Could not read {ds.recode_type} ({ds.year}): {e}")
-
-    paginator = Paginator(variables, 50)
-    page_obj = paginator.get_page(request.GET.get('page'))
-
-    return render(request, 'admin/data/variables.html', {
-        'page_obj': page_obj,
-        'datasets': datasets,
-        'selected_recode': selected_recode,
-        'search_q': search_q,
-        'total_vars': len(variables),
-    })
-
-
-# ─────────────────────────────────────────────────
-# INDICATOR CALCULATOR
-# ─────────────────────────────────────────────────
-
-@user_passes_test(admin_required, login_url='admin_login')
-def indicator_calculate_view(request):
-    """List all available indicators from dhs_indicator.py and allow running them."""
-    from .dhs_indicator import INDICATORS
-
-    # Build flat list of indicators with their chapters and required recodes
-    indicator_list = []
-    for chapter, inds in INDICATORS.items():
-        for ind_name, meta in inds.items():
-            indicator_list.append({
-                'chapter': chapter,
-                'name': ind_name,
-                'req': meta['req'],
-            })
-
-    # Available datasets grouped by recode type
-    available_recodes = set(DHSUploadedDataset.objects.values_list('recode_type', flat=True))
-    available_years = sorted(set(DHSUploadedDataset.objects.values_list('year', flat=True)), reverse=True)
-
-    context = {
-        'indicator_list': indicator_list,
-        'available_recodes': available_recodes,
-        'available_years': available_years,
-    }
-    return render(request, 'admin/data/calculate.html', context)
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def indicator_run_view(request):
-    """Run a single indicator calculation and save results to the DB."""
-    if request.method != 'POST':
-        return redirect('admin_indicator_calculate')
-
-    from .dhs_indicator import INDICATORS
-    from .dhs_core import load_data
-
-    chapter = request.POST.get('chapter')
-    ind_name = request.POST.get('indicator')
-    year = request.POST.get('year', '')
-
-    if not year.isdigit():
-        messages.error(request, "Invalid year.")
-        return redirect('admin_indicator_calculate')
-    year = int(year)
-
-    # Find indicator definition
-    ind_def = INDICATORS.get(chapter, {}).get(ind_name)
-    if not ind_def:
-        messages.error(request, f"Indicator '{ind_name}' not found.")
-        return redirect('admin_indicator_calculate')
-
-    # Load required datasets
-    datasets = {}
-    missing = []
-    for recode in ind_def['req']:
-        ds = DHSUploadedDataset.objects.filter(recode_type=recode, year=year).first()
-        if not ds or not os.path.exists(ds.file_path):
-            # Try any year for that recode
-            ds = DHSUploadedDataset.objects.filter(recode_type=recode).order_by('-year').first()
-        if ds and os.path.exists(ds.file_path):
-            df = load_data(ds.file_path)
-            if df is not None and not df.empty:
-                datasets[recode] = df
-            else:
-                missing.append(recode)
-        else:
-            missing.append(recode)
-
-    if missing:
-        messages.error(request, f"Missing datasets: {', '.join(missing)}. Please upload them first.")
-        audit(request, 'COMPUTE', f"Failed: {ind_name} — missing {missing}", success=False)
-        return redirect('admin_indicator_calculate')
-
-    # Run calculation
-    try:
-        result_df = ind_def['fn'](datasets)
-    except Exception as e:
-        messages.error(request, f"Calculation error for '{ind_name}': {e}")
-        audit(request, 'COMPUTE', f"Error: {ind_name}", details=str(e), success=False)
-        return redirect('admin_indicator_calculate')
-
-    if result_df is None or result_df.empty:
-        messages.warning(request, f"'{ind_name}' returned no data (possibly missing variables in dataset).")
-        return redirect('admin_indicator_calculate')
-
-    # Ensure the category exists
-    category, _ = Category.objects.get_or_create(name=chapter)
-
-    # Determine if multi-category result
-    has_category = 'Category' in result_df.columns
-
-    saved = 0
-    skipped = 0
-
-    for _, row in result_df.iterrows():
-        loc_name = row.get('Location')
-        value = row.get('Value')
-        data_label = str(row.get('Category', 'Total')) if has_category else 'Total'
-
-        if loc_name is None or value is None:
-            continue
-
-        import math
-        if isinstance(value, float) and math.isnan(value):
-            continue
-
-        district = resolve_district_by_name(str(loc_name))
-        if not district:
-            skipped += 1
-            continue
-
-        indicator, _ = Indicator.objects.get_or_create(
-            name=ind_name, category=category, year=year,
-            defaults={'unit': 'Percentage (%)'}
-        )
-
-        IndicatorValue.objects.update_or_create(
-            indicator=indicator, district=district,
-            data_label=data_label, year=year,
-            defaults={'value': float(value)}
-        )
-        saved += 1
-
-    audit(request, 'COMPUTE',
-          f"Computed: {ind_name} ({year})",
-          details=f"Saved {saved} values, skipped {skipped} unmatched locations")
-
-    messages.success(request, f"✅ '{ind_name}' ({year}): saved {saved} values ({skipped} locations skipped).")
-    return redirect('admin_indicator_calculate')
 
 
 # ─────────────────────────────────────────────────
 # USER MANAGEMENT
 # ─────────────────────────────────────────────────
 
-@user_passes_test(admin_required, login_url='admin_login')
 def user_list_view(request):
     users = User.objects.all().order_by('-date_joined')
-    q = request.GET.get('q', '')
+    q = request.GET.get('q', '').strip()
     if q:
-        users = users.filter(Q(username__icontains=q) | Q(email__icontains=q))
+        users = _user_search_qs(q)
     paginator = Paginator(users, 20)
     page_obj = paginator.get_page(request.GET.get('page'))
     return render(request, 'admin/users/list.html', {'page_obj': page_obj, 'q': q})
 
 
-@user_passes_test(admin_required, login_url='admin_login')
+def _user_search_qs(raw_q):
+    """Return a User queryset matching raw_q across multiple fields."""
+    q = re.sub(r'\s+', ' ', raw_q.strip())[:200]  # normalise + cap length
+    qs = User.objects.annotate(
+        full_name=Concat('first_name', Value(' '), 'last_name', output_field=CharField())
+    ).filter(
+        Q(username__icontains=q) |
+        Q(email__icontains=q) |
+        Q(first_name__icontains=q) |
+        Q(last_name__icontains=q) |
+        Q(full_name__icontains=q)
+    ).distinct().order_by('-date_joined')
+    return qs
+
+
+def user_search_api(request):
+    """JSON endpoint for live user search."""
+    raw_q = request.GET.get('q', '').strip()
+    q = re.sub(r'\s+', ' ', raw_q)[:200]
+
+    users = _user_search_qs(q) if q else User.objects.all().order_by('-date_joined')
+
+    results = []
+    for u in users[:100]:
+        results.append({
+            'id': u.id,
+            'username': u.username,
+            'full_name': u.get_full_name() or u.username,
+            'email': u.email or '',
+            'is_superuser': u.is_superuser,
+            'is_staff': u.is_staff,
+            'is_active': u.is_active,
+            'last_login': u.last_login.strftime('%Y-%m-%d %H:%M') if u.last_login else None,
+        })
+
+    return JsonResponse({'users': results, 'count': len(results)})
+
+
+def _generate_temp_password(length=12):
+    import secrets, string
+    alphabet = string.ascii_letters + string.digits + '!@#$%&'
+    while True:
+        pwd = ''.join(secrets.choice(alphabet) for _ in range(length))
+        # Ensure at least one of each: upper, lower, digit, special
+        if (any(c.isupper() for c in pwd) and any(c.islower() for c in pwd)
+                and any(c.isdigit() for c in pwd) and any(c in '!@#$%&' for c in pwd)):
+            return pwd
+
+
+def _send_credentials_email(user, temp_password):
+    from django.conf import settings as conf
+    site_url = getattr(conf, 'SITE_URL', 'http://127.0.0.1:8000')
+    login_url = f"{site_url}/admin-panel/"
+    role_label = 'Admin' if user.is_staff else 'Analyst'
+    full_name  = user.get_full_name() or user.username
+
+    html = f"""
+<div style="font-family:Arial,sans-serif;max-width:540px;margin:0 auto;padding:32px 16px;">
+  <div style="background:#1e3a8a;border-radius:14px 14px 0 0;padding:26px 32px;display:flex;align-items:center;gap:14px;">
+    <div>
+      <div style="color:#fff;font-size:1.15rem;font-weight:700;margin:0;">RDHS Insights</div>
+      <div style="color:rgba(255,255,255,0.5);font-size:0.78rem;margin-top:2px;">National Institute of Statistics of Rwanda</div>
+    </div>
+  </div>
+  <div style="background:#fff;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 14px 14px;padding:30px 32px;">
+    <p style="color:#1e293b;font-size:1rem;font-weight:600;margin:0 0 6px;">Hello, {full_name}</p>
+    <p style="color:#475569;font-size:0.88rem;margin:0 0 22px;line-height:1.6;">
+      Your <strong>RDHS Insights</strong> account has been created. You can now access the platform using the credentials below.
+    </p>
+
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:20px 22px;margin-bottom:22px;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+        <tr>
+          <td style="color:#64748b;padding:5px 0;width:120px;">Role</td>
+          <td style="color:#1e293b;font-weight:600;">{role_label}</td>
+        </tr>
+        <tr>
+          <td style="color:#64748b;padding:5px 0;">Email</td>
+          <td style="color:#1e293b;font-weight:600;">{user.email}</td>
+        </tr>
+        <tr>
+          <td style="color:#64748b;padding:5px 0;">Temp Password</td>
+          <td style="color:#1e293b;font-family:monospace;font-size:1rem;font-weight:700;letter-spacing:0.05em;">{temp_password}</td>
+        </tr>
+      </table>
+    </div>
+
+    <a href="{login_url}" style="display:inline-block;background:#1d4ed8;color:#fff;padding:12px 28px;border-radius:9px;text-decoration:none;font-weight:600;font-size:0.9rem;margin-bottom:22px;">
+      Go to RDHS Insights &#8594;
+    </a>
+
+    <div style="background:#fefce8;border:1px solid #fde68a;border-radius:9px;padding:14px 16px;">
+      <p style="color:#92400e;font-size:0.8rem;margin:0;line-height:1.6;">
+        <strong>&#x26A0; Security notice:</strong> This is a temporary password generated by the system.
+        Please change it after your first login for security purposes.
+      </p>
+    </div>
+  </div>
+  <p style="color:#94a3b8;font-size:0.7rem;text-align:center;margin-top:16px;">
+    This email was sent by RDHS Insights. If you did not expect this, contact your administrator.
+  </p>
+</div>"""
+
+    plain = (
+        f"Hello {full_name},\n\n"
+        f"Your RDHS Insights account has been created.\n\n"
+        f"Role:           {role_label}\n"
+        f"Email:          {user.email}\n"
+        f"Temp Password:  {temp_password}\n\n"
+        f"Login at: {login_url}\n\n"
+        f"Please change your password after your first login.\n\n"
+        f"— RDHS Admin Team"
+    )
+
+    api_key = getattr(conf, 'RESEND_API_KEY', '')
+    if api_key:
+        try:
+            import resend as _resend
+            _resend.api_key = api_key
+            _resend.Emails.send({
+                'from': getattr(conf, 'DEFAULT_FROM_EMAIL', 'RDHS Insights <noreply@rdhs.gov.rw>'),
+                'to':   [user.email],
+                'subject': 'Your RDHS Insights Account',
+                'html': html,
+                'text': plain,
+            })
+            return True
+        except Exception:
+            return False
+    else:
+        from django.core.mail import send_mail
+        try:
+            send_mail(
+                'Your RDHS Insights Account', plain,
+                getattr(conf, 'DEFAULT_FROM_EMAIL', 'noreply@rdhs.gov.rw'),
+                [user.email], html_message=html, fail_silently=False,
+            )
+            return True
+        except Exception:
+            return False
+
+
 def user_create_view(request):
     if request.method == 'POST':
-        username = request.POST.get('username', '').strip()
-        email = request.POST.get('email', '').strip()
-        password = request.POST.get('password', '')
-        role = request.POST.get('role', 'report')
+        username   = request.POST.get('username', '').strip()
+        email      = request.POST.get('email', '').strip()
+        password   = request.POST.get('password', '')
+        first_name = request.POST.get('first_name', '').strip()
+        last_name  = request.POST.get('last_name', '').strip()
+        is_staff   = 'is_staff' in request.POST
+        is_active  = 'is_active' in request.POST
 
-        if not username or not password:
-            messages.error(request, "Username and password are required.")
-            return render(request, 'admin/users/form.html', {'action': 'Create'})
+        if not all([username, email, first_name, last_name, password]):
+            messages.error(request, "All fields are required.")
+            return render(request, 'admin/users/form.html', {'title': 'Create User'})
 
         if User.objects.filter(username=username).exists():
             messages.error(request, f"Username '{username}' already exists.")
-            return render(request, 'admin/users/form.html', {'action': 'Create'})
+            return render(request, 'admin/users/form.html', {'title': 'Create User'})
 
-        user = User.objects.create_user(username=username, email=email, password=password)
-        if role == 'admin':
-            user.is_staff = True
-            user.is_superuser = True
-            user.save()
-
-        audit(request, 'USER_CREATE', f"Created user: {username} (role={role})")
+        User.objects.create_user(
+            username=username, email=email, password=password,
+            first_name=first_name, last_name=last_name,
+            is_staff=is_staff, is_superuser=is_staff,
+            is_active=is_active,
+        )
+        audit(request, 'USER_CREATE', f"Created user: {username}")
         messages.success(request, f"User '{username}' created successfully.")
         return redirect('admin_user_list')
 
-    return render(request, 'admin/users/form.html', {'action': 'Create'})
+    return render(request, 'admin/users/form.html', {'title': 'Create User'})
 
 
-@user_passes_test(admin_required, login_url='admin_login')
 def user_edit_view(request, pk):
-    target_user = get_object_or_404(User, pk=pk)
+    u = get_object_or_404(User, pk=pk)
     if request.method == 'POST':
-        email = request.POST.get('email', '').strip()
-        role = request.POST.get('role', 'report')
+        u.email      = request.POST.get('email', '').strip()
+        u.first_name = request.POST.get('first_name', '').strip()
+        u.last_name  = request.POST.get('last_name', '').strip()
+        u.is_staff   = 'is_staff' in request.POST
+        u.is_superuser = u.is_staff
+        u.is_active  = 'is_active' in request.POST
         password = request.POST.get('password', '').strip()
-
-        target_user.email = email
-        target_user.is_staff = (role == 'admin')
-        target_user.is_superuser = (role == 'admin')
         if password:
-            target_user.set_password(password)
-        target_user.save()
+            u.set_password(password)
+        u.save()
 
-        audit(request, 'USER_UPDATE', f"Updated user: {target_user.username}")
-        messages.success(request, f"User '{target_user.username}' updated.")
+        audit(request, 'USER_UPDATE', f"Updated user: {u.username}")
+        messages.success(request, f"User '{u.username}' updated.")
         return redirect('admin_user_list')
 
-    role = 'admin' if target_user.is_staff else 'report'
     return render(request, 'admin/users/form.html', {
-        'action': 'Edit', 'target_user': target_user, 'role': role
+        'title': f"Edit User — {u.username}",
+        'u': u,
     })
 
 
-@user_passes_test(admin_required, login_url='admin_login')
 def user_delete_view(request, pk):
     target_user = get_object_or_404(User, pk=pk)
     if target_user == request.user:
@@ -465,7 +504,6 @@ def user_delete_view(request, pk):
     return redirect('admin_user_list')
 
 
-@user_passes_test(admin_required, login_url='admin_login')
 def user_toggle_active_view(request, pk):
     target_user = get_object_or_404(User, pk=pk)
     if target_user == request.user:
@@ -483,385 +521,151 @@ def user_toggle_active_view(request, pk):
 # AUDIT LOGS
 # ─────────────────────────────────────────────────
 
-@user_passes_test(admin_required, login_url='admin_login')
+def _audit_action_codes_for(q):
+    """Return action codes whose display label contains q (case-insensitive)."""
+    q_lower = q.lower()
+    return [
+        code for code, label in SystemAuditLog.ACTION_CHOICES
+        if q_lower in label.lower()
+    ]
+
+
+def _audit_filter_qs(logs, q, scope):
+    """
+    Filter by scope (pre-filter, applied even with no query) then narrow
+    by text query within the scoped set.
+
+    Scopes:
+      all       – every log; text searches all fields
+      user      – USER_CREATE / UPDATE / DELETE events; text searches username
+      session   – LOGIN / LOGOUT events; text searches username
+      indicator – COMPUTE events; text searches description + details
+      dataset   – UPLOAD / DATA_DELETE events; text searches description + details
+      ip        – logs that have an IP address; text searches IP field
+      action    – no pre-filter; text searches action code + display label
+    """
+    # ── Step 1: scope pre-filter ───────────────────────────────────────────
+    if scope == 'user':
+        logs = logs.filter(action__in=['USER_CREATE', 'USER_UPDATE', 'USER_DELETE'])
+    elif scope == 'session':
+        logs = logs.filter(action__in=['LOGIN', 'LOGOUT'])
+    elif scope == 'indicator':
+        logs = logs.filter(action='COMPUTE')
+    elif scope == 'dataset':
+        logs = logs.filter(action__in=['UPLOAD', 'DATA_DELETE'])
+    elif scope == 'ip':
+        logs = logs.filter(ip_address__isnull=False)
+    # 'all' and 'action' → no pre-filter
+
+    # ── Step 2: text search within the scoped set ─────────────────────────
+    if not q:
+        return logs
+
+    matching_codes = _audit_action_codes_for(q)
+
+    if scope in ('user', 'session'):
+        return logs.filter(user__username__icontains=q)
+
+    if scope in ('indicator', 'dataset'):
+        return logs.filter(
+            Q(description__icontains=q) | Q(details__icontains=q)
+        ).distinct()
+
+    if scope == 'ip':
+        return logs.filter(ip_address__icontains=q)
+
+    if scope == 'action':
+        qs = Q(action__icontains=q)
+        if matching_codes:
+            qs |= Q(action__in=matching_codes)
+        return logs.filter(qs)
+
+    # scope == 'all' — search every field
+    qs = (
+        Q(user__username__icontains=q) |
+        Q(description__icontains=q)    |
+        Q(details__icontains=q)        |
+        Q(ip_address__icontains=q)     |
+        Q(action__icontains=q)
+    )
+    if matching_codes:
+        qs |= Q(action__in=matching_codes)
+    return logs.filter(qs).distinct()
+
+
 def audit_log_view(request):
     from datetime import datetime
-    all_logs = SystemAuditLog.objects.select_related('user').all()
 
-    # Overall stats (unfiltered)
-    total_count = all_logs.count()
-    success_count = all_logs.filter(success=True).count()
-    failed_count = all_logs.filter(success=False).count()
+    logs = SystemAuditLog.objects.select_related('user').all()
 
-    # Apply filters
-    logs = all_logs
-    action_filter = request.GET.get('action', '')
-    user_filter = request.GET.get('user', '').strip()
+    q              = re.sub(r'\s+', ' ', request.GET.get('q', '').strip())[:200]
+    scope          = request.GET.get('scope', 'all')
     success_filter = request.GET.get('success', '')
-    date_from = request.GET.get('date_from', '').strip()
-    date_to = request.GET.get('date_to', '').strip()
+    date_from      = request.GET.get('date_from', '').strip()
 
-    if action_filter:
-        logs = logs.filter(action=action_filter)
-    if user_filter:
-        logs = logs.filter(user__username__icontains=user_filter)
+    logs = _audit_filter_qs(logs, q, scope)
+
     if success_filter == '1':
         logs = logs.filter(success=True)
     elif success_filter == '0':
         logs = logs.filter(success=False)
     if date_from:
         try:
-            logs = logs.filter(timestamp__date__gte=datetime.strptime(date_from, '%Y-%m-%d').date())
+            logs = logs.filter(
+                timestamp__date__gte=datetime.strptime(date_from, '%Y-%m-%d').date()
+            )
         except ValueError:
             date_from = ''
-    if date_to:
-        try:
-            logs = logs.filter(timestamp__date__lte=datetime.strptime(date_to, '%Y-%m-%d').date())
-        except ValueError:
-            date_to = ''
 
     paginator = Paginator(logs, 30)
     page_obj = paginator.get_page(request.GET.get('page'))
 
     return render(request, 'admin/audit/list.html', {
-        'page_obj': page_obj,
-        'action_choices': SystemAuditLog.ACTION_CHOICES,
-        'action_filter': action_filter,
-        'user_filter': user_filter,
+        'page_obj':       page_obj,
+        'q':              q,
+        'scope':          scope,
         'success_filter': success_filter,
-        'date_from': date_from,
-        'date_to': date_to,
-        'total_count': total_count,
-        'success_count': success_count,
-        'failed_count': failed_count,
+        'date_from':      date_from,
     })
 
 
-# ─────────────────────────────────────────────────
-# CATEGORY MANAGEMENT (existing)
-# ─────────────────────────────────────────────────
+def audit_search_api(request):
+    """JSON endpoint for live audit log search (all fields + scope)."""
+    from datetime import datetime as _dt
 
-@user_passes_test(admin_required, login_url='admin_login')
-def category_list_view(request):
-    categories = Category.objects.all()
-    return render(request, 'admin/categories/list.html', {'categories': categories})
+    q              = re.sub(r'\s+', ' ', request.GET.get('q', '').strip())[:200]
+    scope          = request.GET.get('scope', 'all')
+    success_filter = request.GET.get('success', '')
+    date_from_str  = request.GET.get('date_from', '').strip()
 
+    logs = SystemAuditLog.objects.select_related('user').all().order_by('-timestamp')
 
-@user_passes_test(admin_required, login_url='admin_login')
-def category_create_view(request):
-    if request.method == 'POST':
-        form = CategoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Category created successfully.')
-            return redirect('admin_categories')
-    else:
-        form = CategoryForm()
-    return render(request, 'admin/categories/form.html', {'form': form})
+    logs = _audit_filter_qs(logs, q, scope)
 
+    if success_filter == '1':
+        logs = logs.filter(success=True)
+    elif success_filter == '0':
+        logs = logs.filter(success=False)
 
-@user_passes_test(admin_required, login_url='admin_login')
-def category_edit_view(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    if request.method == 'POST':
-        form = CategoryForm(request.POST, instance=category)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Category updated successfully.')
-            return redirect('admin_categories')
-    else:
-        form = CategoryForm(instance=category)
-    return render(request, 'admin/categories/form.html', {'form': form})
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def category_delete_view(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    if request.method == 'POST':
-        category.delete()
-        messages.success(request, 'Category deleted successfully.')
-        return redirect('admin_categories')
-    return render(request, 'admin/categories/delete.html', {'category': category})
-
-
-# ─────────────────────────────────────────────────
-# INDICATOR MANAGEMENT (existing)
-# ─────────────────────────────────────────────────
-
-@user_passes_test(admin_required, login_url='admin_login')
-def indicator_list_admin_view(request):
-    indicators = Indicator.objects.select_related('category').all().order_by('name')
-    categories = Category.objects.all().order_by('name')
-    query = request.GET.get('q')
-    category_id = request.GET.get('category')
-    if query:
-        indicators = indicators.filter(name__icontains=query)
-    if category_id:
-        indicators = indicators.filter(category_id=category_id)
-    paginator = Paginator(indicators, 20)
-    page_obj = paginator.get_page(request.GET.get('page'))
-    context = {
-        'indicators': page_obj.object_list,
-        'page_obj': page_obj,
-        'is_paginated': page_obj.has_other_pages(),
-        'categories': categories,
-    }
-    return render(request, 'admin/indicators/list.html', context)
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def indicator_create_view(request):
-    if request.method == 'POST':
-        form = IndicatorForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Indicator created successfully.')
-            return redirect('admin_indicators')
-    else:
-        form = IndicatorForm()
-    return render(request, 'admin/indicators/form.html', {'form': form})
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def indicator_edit_view(request, pk):
-    indicator = get_object_or_404(Indicator, pk=pk)
-    if request.method == 'POST':
-        form = IndicatorForm(request.POST, instance=indicator)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Indicator updated successfully.')
-            return redirect('admin_indicators')
-    else:
-        form = IndicatorForm(instance=indicator)
-    return render(request, 'admin/indicators/form.html', {'form': form})
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def indicator_delete_view(request, pk):
-    indicator = get_object_or_404(Indicator, pk=pk)
-    if request.method == 'POST':
-        indicator.delete()
-        messages.success(request, 'Indicator deleted successfully.')
-        return redirect('admin_indicators')
-    return render(request, 'admin/indicators/delete.html', {'indicator': indicator})
-
-
-# ─────────────────────────────────────────────────
-# DATA VALUES (existing)
-# ─────────────────────────────────────────────────
-
-@user_passes_test(admin_required, login_url='admin_login')
-def datavalue_list_view(request):
-    values = IndicatorValue.objects.select_related('indicator', 'district').all()
-    paginator = Paginator(values, 50)
-    page_obj = paginator.get_page(request.GET.get('page'))
-    return render(request, 'admin/datavalues/list.html', {'page_obj': page_obj})
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def datavalue_create_view(request):
-    if request.method == 'POST':
-        form = DataValueForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Data Value added successfully.')
-            return redirect('admin_datavalues')
-    else:
-        form = DataValueForm()
-    return render(request, 'admin/datavalues/form.html', {'form': form})
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def datavalue_edit_view(request, pk):
-    value = get_object_or_404(IndicatorValue, pk=pk)
-    if request.method == 'POST':
-        form = DataValueForm(request.POST, instance=value)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Data Value updated successfully.')
-            return redirect('admin_datavalues')
-    else:
-        form = DataValueForm(instance=value)
-    return render(request, 'admin/datavalues/form.html', {'form': form})
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def datavalue_delete_view(request, pk):
-    value = get_object_or_404(IndicatorValue, pk=pk)
-    if request.method == 'POST':
-        value.delete()
-        messages.success(request, 'Data Value deleted successfully.')
-        return redirect('admin_datavalues')
-    return render(request, 'admin/datavalues/delete.html', {'value': value})
-
-
-# ─────────────────────────────────────────────────
-# LOCATION MANAGEMENT (existing)
-# ─────────────────────────────────────────────────
-
-@user_passes_test(admin_required, login_url='admin_login')
-def location_list_view(request):
-    from django.db.models import Count
-    # Exclude 'National' from list of actual provinces and annotate with actual district count
-    provinces = Province.objects.exclude(name='National').annotate(
-        actual_districts_count=Count(
-            'districts',
-            filter=~Q(districts__name__in=['Kigali City', 'Southern Province', 'Western Province', 'Northern Province', 'Eastern Province', 'Rwanda'])
-        )
-    ).order_by('name')
-    
-    # Exclude aggregate districts from actual districts list
-    districts = District.objects.select_related('province').exclude(
-        name__in=['Kigali City', 'Southern Province', 'Western Province', 'Northern Province', 'Eastern Province', 'Rwanda']
-    ).order_by('name')
-    
-    # Separate the aggregate/system records so they are still visible/managed but clearly distinguished
-    system_locations = District.objects.select_related('province').filter(
-        name__in=['Kigali City', 'Southern Province', 'Western Province', 'Northern Province', 'Eastern Province', 'Rwanda']
-    ).order_by('province__name', 'name')
-    
-    return render(request, 'admin/locations/list.html', {
-        'provinces': provinces, 
-        'districts': districts,
-        'system_locations': system_locations
-    })
-
-
-from .forms import ProvinceForm, DistrictForm
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def province_create_view(request):
-    if request.method == 'POST':
-        form = ProvinceForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Province created successfully.')
-            return redirect('admin_locations')
-    else:
-        form = ProvinceForm()
-    return render(request, 'admin/locations/province_form.html', {'form': form})
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def province_edit_view(request, pk):
-    province = get_object_or_404(Province, pk=pk)
-    if request.method == 'POST':
-        form = ProvinceForm(request.POST, instance=province)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Province updated successfully.')
-            return redirect('admin_locations')
-    else:
-        form = ProvinceForm(instance=province)
-    return render(request, 'admin/locations/province_form.html', {'form': form})
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def province_delete_view(request, pk):
-    province = get_object_or_404(Province, pk=pk)
-    if request.method == 'POST':
-        province.delete()
-        messages.success(request, 'Province deleted successfully.')
-        return redirect('admin_locations')
-    return render(request, 'admin/locations/delete.html', {'object': province, 'type': 'Province'})
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def district_create_view(request):
-    if request.method == 'POST':
-        form = DistrictForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'District created successfully.')
-            return redirect('admin_locations')
-    else:
-        form = DistrictForm()
-    return render(request, 'admin/locations/district_form.html', {'form': form})
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def district_edit_view(request, pk):
-    district = get_object_or_404(District, pk=pk)
-    if request.method == 'POST':
-        form = DistrictForm(request.POST, instance=district)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'District updated successfully.')
-            return redirect('admin_locations')
-    else:
-        form = DistrictForm(instance=district)
-    return render(request, 'admin/locations/district_form.html', {'form': form})
-
-
-@user_passes_test(admin_required, login_url='admin_login')
-def district_delete_view(request, pk):
-    district = get_object_or_404(District, pk=pk)
-    if request.method == 'POST':
-        district.delete()
-        messages.success(request, 'District deleted successfully.')
-        return redirect('admin_locations')
-    return render(request, 'admin/locations/delete.html', {'object': district, 'type': 'District'})
-
-
-def resolve_district_by_name(name):
-    """Map a location name to a District DB object, supporting custom aliases."""
-    if not name:
-        return None
-    name = name.strip()
-    
-    aliases = {
-        "Rwanda": "Rwanda",
-        "National": "Rwanda",
-        "Rwanda (National)": "Rwanda",
-        "Kigali City": "Kigali City",
-        "South": "Southern Province",
-        "West": "Western Province",
-        "North": "Northern Province",
-        "East": "Eastern Province",
-        "East Province": "Eastern Province",
-        "Eastern Province": "Eastern Province",
-        "Southern Province": "Southern Province",
-        "Western Province": "Western Province",
-        "Northern Province": "Northern Province",
-    }
-    
-    mapped = aliases.get(name, name)
-    return District.objects.filter(name__iexact=mapped).first()
-
-
-def save_indicators_from_json(file_path, category, year):
-    """Read indicator data from a JSON file and save to the database."""
-    import json
-    with open(file_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-        
-    indicator_name = data.get('indicator')
-    unit = data.get('unit', 'Percentage (%)')
-    values_data = data.get('data', {})
-    
-    if not indicator_name:
-        return 0
-        
-    indicator, _ = Indicator.objects.get_or_create(
-        name=indicator_name,
-        category=category,
-        year=year,
-        defaults={'unit': unit}
-    )
-    
-    saved_count = 0
-    for loc_name, value in values_data.items():
-        district = resolve_district_by_name(loc_name)
-        if district:
-            IndicatorValue.objects.update_or_create(
-                indicator=indicator,
-                district=district,
-                year=year,
-                data_label='Total',
-                defaults={'value': float(value)}
+    if date_from_str:
+        try:
+            logs = logs.filter(
+                timestamp__date__gte=_dt.strptime(date_from_str, '%Y-%m-%d').date()
             )
-            saved_count += 1
-            
-    return saved_count
+        except ValueError:
+            pass
 
+    results = []
+    for log in logs[:200]:
+        results.append({
+            'ts_date':        log.timestamp.strftime('%Y-%m-%d'),
+            'ts_time':        log.timestamp.strftime('%H:%M:%S'),
+            'username':       log.user.username if log.user else None,
+            'ip':             log.ip_address or '',
+            'action_display': log.get_action_display(),
+            'description':    log.description or '',
+            'details':        log.details or '',
+            'success':        log.success,
+        })
+
+    return JsonResponse({'logs': results, 'count': len(results)})

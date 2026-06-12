@@ -1,0 +1,199 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %}Add User{% endblock %}
+{% block breadcrumb_label %}Add User{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'admin_user_list' %}" class="btn btn-ghost btn-sm">
+    <i class="fas fa-arrow-left"></i> Back to Users
+</a>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .create-layout {
+        display: grid;
+        grid-template-columns: 460px 1fr;
+        gap: 28px;
+        align-items: start;
+    }
+    @media (max-width: 860px) { .create-layout { grid-template-columns: 1fr; } }
+
+    .create-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 28px;
+    }
+    .create-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin: 0 0 4px; }
+    .create-card .sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 24px; line-height: 1.55; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+        display: block; font-size: 0.78rem; font-weight: 600;
+        color: var(--text); margin-bottom: 6px;
+    }
+    .form-group input, .form-group select {
+        width: 100%; padding: 9px 12px;
+        border: 1px solid var(--border); border-radius: 8px;
+        background: var(--bg); color: var(--text); font-size: 0.85rem;
+        box-sizing: border-box; transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .form-group input:focus, .form-group select:focus {
+        outline: none; border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+
+    .info-panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 24px 26px;
+    }
+    .info-panel h4 { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 14px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .flow-step {
+        display: flex; gap: 14px; margin-bottom: 18px; align-items: flex-start;
+    }
+    .flow-num {
+        width: 26px; height: 26px; border-radius: 50%;
+        background: #1d4ed8; color: #fff;
+        font-size: 0.72rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; margin-top: 1px;
+    }
+    .flow-text strong { display: block; font-size: 0.82rem; color: var(--text); }
+    .flow-text span   { font-size: 0.76rem; color: var(--muted); line-height: 1.5; }
+
+    .email-preview {
+        margin-top: 20px;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        font-size: 0.78rem;
+    }
+    .email-preview-header {
+        background: #1e3a8a;
+        padding: 10px 14px;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.72rem;
+    }
+    .email-preview-header strong { color: #fff; display: block; }
+    .email-preview-body { padding: 14px; color: var(--muted); line-height: 1.7; }
+    .email-preview-body .cred { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; margin: 10px 0; font-family: monospace; font-size: 0.8rem; }
+    .email-preview-body .cred span { display: block; }
+    .email-preview-body .warn { color: #b45309; font-size: 0.73rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div style="margin-bottom:18px;">
+{% for msg in messages %}
+<div style="padding:11px 16px;border-radius:8px;font-size:0.83rem;margin-bottom:8px;
+    {% if 'success' in msg.tags %}background:#dcfce7;color:#166534;border:1px solid #bbf7d0;
+    {% elif 'error' in msg.tags %}background:#fee2e2;color:#991b1b;border:1px solid #fecaca;
+    {% else %}background:#fef9c3;color:#854d0e;border:1px solid #fde68a;{% endif %}">
+    {{ msg }}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+
+<div class="create-layout">
+
+    <!-- ── Left: Form ── -->
+    <div class="create-card">
+        <h3>Create Analyst Account</h3>
+        <p class="sub">Fill in the analyst's details. The system will generate a secure temporary password and email their credentials automatically.</p>
+
+        <form method="post" action="{% url 'admin_user_create' %}">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" required
+                           value="{{ form_data.first_name|default:'' }}" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" required
+                           value="{{ form_data.last_name|default:'' }}" autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="email">Institutional Email Address</label>
+                <input type="email" id="email" name="email" required
+                       value="{{ form_data.email|default:'' }}"
+                       placeholder="analyst@nisr.gov.rw" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" name="role">
+                    <option value="analyst" {% if form_data.role != 'admin' %}selected{% endif %}>Analyst</option>
+                    <option value="admin"   {% if form_data.role == 'admin'  %}selected{% endif %}>Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+                <i class="fas fa-user-plus"></i> Create Account &amp; Send Email
+            </button>
+        </form>
+    </div>
+
+    <!-- ── Right: How it works ── -->
+    <div class="info-panel">
+        <h4>How it works</h4>
+
+        <div class="flow-step">
+            <div class="flow-num">1</div>
+            <div class="flow-text">
+                <strong>Admin fills in the form</strong>
+                <span>Enter the analyst's full name, institutional email, and role. No password required from admin.</span>
+            </div>
+        </div>
+        <div class="flow-step">
+            <div class="flow-num">2</div>
+            <div class="flow-text">
+                <strong>System creates the account</strong>
+                <span>A secure temporary password is automatically generated by the system.</span>
+            </div>
+        </div>
+        <div class="flow-step">
+            <div class="flow-num">3</div>
+            <div class="flow-text">
+                <strong>Credentials delivered by email</strong>
+                <span>The analyst receives their login link, email, and temporary password in their inbox.</span>
+            </div>
+        </div>
+        <div class="flow-step" style="margin-bottom:0;">
+            <div class="flow-num">4</div>
+            <div class="flow-text">
+                <strong>Analyst changes their password</strong>
+                <span>The email reminds them to update their password after first login for security.</span>
+            </div>
+        </div>
+
+        <!-- Email preview -->
+        <div class="email-preview">
+            <div class="email-preview-header">
+                <strong>Email preview — what the analyst receives</strong>
+                To: analyst@nisr.gov.rw &nbsp;·&nbsp; Subject: Your RDHS Insights Account
+            </div>
+            <div class="email-preview-body">
+                Hello <strong>Analyst Name</strong>,<br>
+                Your RDHS Insights account has been created.
+                <div class="cred">
+                    <span><strong>Role:</strong> Analyst</span>
+                    <span><strong>Email:</strong> analyst@nisr.gov.rw</span>
+                    <span><strong>Temp&nbsp;Password:</strong> X7k!mP2&amp;rQn9</span>
+                </div>
+                <span class="warn">⚠ Please change your password after your first login for security purposes.</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

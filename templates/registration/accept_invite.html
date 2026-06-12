@@ -1,0 +1,186 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Registration — RDHS Insights</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            padding: 24px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(30,58,138,0.10);
+            width: 100%; max-width: 440px;
+            overflow: hidden;
+        }
+        .card-header {
+            background: #1e3a8a;
+            padding: 28px 32px 22px;
+            display: flex; align-items: center; gap: 14px;
+        }
+        .card-header img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; }
+        .card-header-text h1 { color: #fff; font-size: 1.1rem; font-weight: 700; }
+        .card-header-text p  { color: rgba(255,255,255,0.55); font-size: 0.78rem; margin-top: 2px; }
+        .card-body { padding: 28px 32px 32px; }
+
+        /* State: invalid / used / expired / cancelled */
+        .state-icon { font-size: 3rem; margin-bottom: 14px; }
+        .state-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+        .state-desc  { font-size: 0.85rem; color: #64748b; line-height: 1.6; }
+        .state-box   { text-align: center; padding: 12px 0; }
+
+        /* Form */
+        .invite-meta {
+            background: #eff6ff; border: 1px solid #bfdbfe;
+            border-radius: 9px; padding: 12px 16px;
+            margin-bottom: 22px;
+            font-size: 0.82rem; color: #1d4ed8;
+        }
+        .invite-meta strong { display: block; font-size: 0.95rem; color: #1e3a8a; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 5px; }
+        .form-group input {
+            width: 100%; padding: 10px 13px;
+            border: 1px solid #cbd5e1; border-radius: 8px;
+            font-size: 0.88rem; color: #0f172a; background: #f8fafc;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .form-group input:focus {
+            outline: none; border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+            background: #fff;
+        }
+        .form-group input[readonly] { background: #f1f5f9; color: #64748b; cursor: default; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn-submit {
+            width: 100%; padding: 12px;
+            background: #1d4ed8; color: #fff;
+            border: none; border-radius: 9px;
+            font-size: 0.92rem; font-weight: 600;
+            cursor: pointer; margin-top: 6px;
+            transition: background 0.15s;
+        }
+        .btn-submit:hover { background: #1e40af; }
+
+        .error-list {
+            background: #fee2e2; border: 1px solid #fca5a5;
+            border-radius: 8px; padding: 10px 14px;
+            margin-bottom: 16px; list-style: none;
+        }
+        .error-list li { font-size: 0.8rem; color: #991b1b; padding: 2px 0; }
+        .error-list li::before { content: "• "; }
+
+        .success-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #dcfce7; border: 1px solid #bbf7d0;
+            color: #166534; padding: 6px 14px; border-radius: 99px;
+            font-size: 0.8rem; font-weight: 600; margin-bottom: 14px;
+        }
+        footer { text-align: center; color: #94a3b8; font-size: 0.72rem; margin-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="card-header">
+        <img src="{% static 'images/nisr_logo.jpg' %}" alt="NISR">
+        <div class="card-header-text">
+            <h1>RDHS Insights</h1>
+            <p>Analyst Onboarding</p>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        {% if state == 'invalid' %}
+        <div class="state-box">
+            <div class="state-icon" style="color:#ef4444;">&#x26A0;</div>
+            <div class="state-title">Invalid Invitation</div>
+            <p class="state-desc">This invitation link is not recognised. It may have been miscopied or never existed.<br>Contact your administrator for a new invitation.</p>
+        </div>
+
+        {% elif state == 'used' %}
+        <div class="state-box">
+            <div class="state-icon" style="color:#22c55e;">&#x2713;</div>
+            <div class="state-title">Already Registered</div>
+            <p class="state-desc">This invitation has already been used to create an account. If you need help accessing the platform, contact your administrator.</p>
+        </div>
+
+        {% elif state == 'cancelled' %}
+        <div class="state-box">
+            <div class="state-icon" style="color:#94a3b8;">&#x25CB;</div>
+            <div class="state-title">Invitation Cancelled</div>
+            <p class="state-desc">This invitation was cancelled by the administrator. Please request a new invitation.</p>
+        </div>
+
+        {% elif state == 'expired' %}
+        <div class="state-box">
+            <div class="state-icon" style="color:#f59e0b;">&#x23F0;</div>
+            <div class="state-title">Invitation Expired</div>
+            <p class="state-desc">This invitation link has expired (invitations are valid for 72 hours). Contact your administrator to request a new one.</p>
+        </div>
+
+        {% elif state == 'done' %}
+        <div class="state-box">
+            <div class="success-badge"><i class="fas fa-circle-check"></i> Account Created</div>
+            <div class="state-title">Welcome, {{ user.first_name }}!</div>
+            <p class="state-desc" style="margin-top:8px;">Your account has been set up successfully. You can now sign in to the RDHS Insights platform with your email and the password you just created.</p>
+        </div>
+
+        {% elif state == 'form' %}
+        <div class="invite-meta">
+            <strong>{{ invitation.email }}</strong>
+            Invited as {{ invitation.get_role_display }}
+        </div>
+
+        {% if errors %}
+        <ul class="error-list">
+            {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" required
+                           value="{{ form_data.first_name|default:'' }}" autocomplete="given-name">
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" required
+                           value="{{ form_data.last_name|default:'' }}" autocomplete="family-name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" value="{{ invitation.email }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="password">Create Password <span style="color:#94a3b8;font-weight:400;">(min. 8 characters)</span></label>
+                <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-user-check"></i> Complete Registration
+            </button>
+        </form>
+
+        {% endif %}
+    </div>
+</div>
+<footer>© {% now "Y" %} National Institute of Statistics of Rwanda</footer>
+</body>
+</html>
