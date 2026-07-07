@@ -44,6 +44,31 @@ def _fetch_values(indicator_id: int, year: int, data_label: str, province_name: 
     return list(qs)
 
 
+@sync_to_async
+def _fetch_national_value(indicator_id: int, year: int, data_label: str) -> float | None:
+    """Fetch the stored national-level value from DB (district__level='national')."""
+    val = IndicatorValue.objects.filter(
+        indicator_id=indicator_id,
+        year=year,
+        data_label=data_label,
+        district__level='national',
+    ).first()
+    return val.value if val else None
+
+
+@sync_to_async
+def _fetch_province_rows(indicator_id: int, year: int, data_label: str):
+    """Fetch all stored province-level rows from DB (district__level='province')."""
+    return list(
+        IndicatorValue.objects.filter(
+            indicator_id=indicator_id,
+            year=year,
+            data_label=data_label,
+            district__level='province',
+        ).select_related('district')
+    )
+
+
 async def build_indicator_response(
     indicator_name: str,
     year: int | None = None,
@@ -65,13 +90,19 @@ async def build_indicator_response(
     if resolved_year is None:
         resolved_year = indicator.year
 
+    # Fetch district-level rows (filtered by province when region is specified)
     values = await _fetch_values(indicator.id, resolved_year, data_label, province_name)
 
-    districts: list[DistrictResult] = []
-    # key: province name → {dhs_code, vals}
-    prov_groups: dict[str, dict] = {}
-    # reverse map: name → DHS code
+    # Fetch stored national and province values from DB
+    stored_national = await _fetch_national_value(indicator.id, resolved_year, data_label)
+    stored_province_rows = await _fetch_province_rows(indicator.id, resolved_year, data_label)
+
+    # reverse map: province name → DHS code
     name_to_dhs = {v: k for k, v in DHS_PROVINCE_NAMES.items()}
+
+    districts: list[DistrictResult] = []
+    # key: province name → {dhs_code, vals} — used as fallback if no stored province rows
+    prov_groups: dict[str, dict] = {}
 
     for v in values:
         if not v.district:
@@ -90,17 +121,39 @@ async def build_indicator_response(
             if v.value is not None:
                 prov_groups[pname]["vals"].append(v.value)
 
-    provinces: list[ProvinceResult] = [
-        ProvinceResult(
-            province_id=info["dhs_code"],
-            province_name=pname,
-            value=round(sum(info["vals"]) / len(info["vals"]), 1) if info["vals"] else None,
-        )
-        for pname, info in prov_groups.items()
-    ]
+    # Build province results — prefer stored province-level rows from DB
+    if stored_province_rows:
+        # Filter to the requested province when region is specified
+        prov_rows_to_use = stored_province_rows
+        if province_name is not None:
+            prov_rows_to_use = [r for r in stored_province_rows if r.district.name == province_name]
 
-    all_vals = [d.value for d in districts if d.value is not None]
-    national_val = round(sum(all_vals) / len(all_vals), 1) if all_vals else None
+        provinces: list[ProvinceResult] = [
+            ProvinceResult(
+                province_id=name_to_dhs.get(r.district.name, 0),
+                province_name=r.district.name,
+                value=r.value,
+            )
+            for r in prov_rows_to_use
+            if r.district.name in name_to_dhs
+        ]
+    else:
+        # Fallback: compute province averages from district values
+        provinces = [
+            ProvinceResult(
+                province_id=info["dhs_code"],
+                province_name=pname,
+                value=round(sum(info["vals"]) / len(info["vals"]), 1) if info["vals"] else None,
+            )
+            for pname, info in prov_groups.items()
+        ]
+
+    # National value — prefer stored national row, fallback to district average
+    if stored_national is not None:
+        national_val = stored_national
+    else:
+        all_vals = [d.value for d in districts if d.value is not None]
+        national_val = round(sum(all_vals) / len(all_vals), 1) if all_vals else None
 
     return IndicatorResponse(
         indicator=indicator.name,
