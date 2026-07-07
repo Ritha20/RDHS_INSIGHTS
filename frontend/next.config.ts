@@ -13,6 +13,12 @@ if (replitDomains) {
 
 const nextConfig: NextConfig = {
   skipTrailingSlashRedirect: true,
+  experimental: {
+    // Next 15.5 devtools Segment Explorer can corrupt the RSC client manifest
+    // in this app during Webpack dev reloads, producing:
+    // "__webpack_modules__[moduleId] is not a function".
+    devtoolSegmentExplorer: false,
+  },
   async rewrites() {
     return [
       {

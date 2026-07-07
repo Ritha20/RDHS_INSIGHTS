@@ -11,7 +11,17 @@ import { PROVINCES } from '@/lib/types'
 import { useState } from 'react'
 import type { IndicatorResponse } from '@/lib/types'
 
-const KPI_QUERIES = [
+type KPIColor = 'green' | 'blue' | 'amber' | 'rose' | 'purple' | 'teal'
+
+interface KPIQuery {
+  path: string
+  params: Record<string, string>
+  title: string
+  description: string
+  color: KPIColor
+}
+
+const KPI_QUERIES: KPIQuery[] = [
   { path: '/chapter3/fertility-rate', params: { rate_type: 'observed', region: '1' }, title: 'Total Fertility Rate', description: 'National avg', color: 'blue' as const },
   { path: '/chapter4/contraception-use', params: { method: 'modern', marital_status: 'married', region: '1' }, title: 'Modern Contraceptive Use', description: 'Married women', color: 'green' as const },
   { path: '/chapter5/delivery-assistance', params: { provider: 'skilled', region: '1' }, title: 'Skilled Birth Attendance', description: 'Last 5 years', color: 'teal' as const },
@@ -20,7 +30,7 @@ const KPI_QUERIES = [
   { path: '/chapter9/hiv-testing', params: { gender: 'female', timing: 'ever', region: '1' }, title: 'HIV Testing (Women)', description: 'Ever tested, age 15-49', color: 'amber' as const },
 ]
 
-const COMPARISON_QUERIES = PROVINCES.map((p) => ({
+const COMPARISON_QUERIES: { path: string; params: Record<string, string>; province: typeof PROVINCES[number] }[] = PROVINCES.map((p) => ({
   path: '/chapter4/contraception-use',
   params: { method: 'modern', marital_status: 'married', region: String(p.code) },
   province: p,

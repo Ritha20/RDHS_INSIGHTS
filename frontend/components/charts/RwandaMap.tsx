@@ -84,6 +84,12 @@ interface HoverInfo {
   value: number | null
 }
 
+interface DistrictPath {
+  name: string
+  provCode: number
+  pathStr: string
+}
+
 export default function RwandaMap({ data, unit, national, onSelect, selected, districtData }: Props) {
   const [geojson, setGeojson] = useState<any>(null)
   const [hovered, setHovered] = useState<number | null>(null)
@@ -109,7 +115,7 @@ export default function RwandaMap({ data, unit, national, onSelect, selected, di
     return map
   }, [districtData])
 
-  const { districtPaths } = useMemo(() => {
+  const { districtPaths } = useMemo<{ districtPaths: DistrictPath[] }>(() => {
     if (!geojson) return { districtPaths: [] }
 
     let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity

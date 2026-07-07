@@ -7,6 +7,7 @@ from indicators.models import Category, Indicator, IndicatorValue, District, Pro
 
 from rdhs_viz.routers import metadata, chapter1, chapter2, chapter3, chapter4, chapter5
 from rdhs_viz.routers import chapter6, chapter7, chapter8, chapter9, chapter10
+from rdhs_viz.routers import report_builder
 # api 
 app = FastAPI(
     title="Rwanda DHS Dashboard API",
@@ -37,6 +38,7 @@ app.include_router(chapter7.router)
 app.include_router(chapter8.router)
 app.include_router(chapter9.router)
 app.include_router(chapter10.router)
+app.include_router(report_builder.router)
 
 
 # ---------------------------------------------------------------------------

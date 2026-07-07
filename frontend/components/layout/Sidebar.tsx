@@ -6,7 +6,7 @@ import { useState, useMemo } from 'react'
 import {
   Home, Users, Baby, HeartHandshake, Stethoscope,
   ShieldCheck, Apple, Bug, Activity, Scale, LayoutDashboard,
-  GitCompare, Search, X, PanelLeftClose, PanelLeftOpen
+  GitCompare, Search, X, PanelLeftClose, PanelLeftOpen, FileText
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { CHAPTERS } from '@/lib/chapters'
@@ -20,6 +20,7 @@ const iconMap: Record<string, React.ElementType> = {
 const navItems = [
   { href: '/', label: 'Overview', icon: LayoutDashboard },
   { href: '/compare', label: 'Compare Regions', icon: GitCompare },
+  { href: '/report-builder', label: 'Report Builder', icon: FileText },
   ...CHAPTERS.map((c) => ({
     href: `/chapters/${c.slug}`,
     label: c.title,
@@ -42,7 +43,7 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        'sidebar-container fixed inset-y-0 left-0 z-30 flex flex-col bg-nisr-navy shadow-xl',
+        'sidebar-container fixed inset-y-0 left-0 z-30 hidden flex-col bg-nisr-navy shadow-xl md:flex',
         'transition-all duration-300 ease-in-out',
         collapsed ? 'w-16' : 'w-64'
       )}
@@ -127,6 +128,7 @@ export default function Sidebar() {
             : pathname.startsWith(item.href)
           const Icon = item.icon
           const isCompare = item.href === '/compare'
+          const isReportBuilder = item.href === '/report-builder'
           return (
             <div key={item.href}>
               {isCompare && <div className="mx-2 my-1 h-px bg-white/10" />}
@@ -165,9 +167,14 @@ export default function Sidebar() {
                       NEW
                     </span>
                   )}
+                  {!collapsed && isReportBuilder && (
+                    <span className="ml-auto rounded-full bg-blue-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-blue-400 shrink-0">
+                      BETA
+                    </span>
+                  )}
                 </Link>
               </div>
-              {isCompare && <div className="mx-2 my-1 h-px bg-white/10" />}
+              {(isCompare || isReportBuilder) && <div className="mx-2 my-1 h-px bg-white/10" />}
             </div>
           )
         })}

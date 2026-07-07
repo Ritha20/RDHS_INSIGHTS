@@ -12,7 +12,19 @@ import { PROVINCES } from '@/lib/types'
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 
-const KPI_QUERIES = [
+type KPIQuery = {
+  path: string
+  params: Record<string, string>
+  title: string
+  description: string
+  color: 'blue' | 'teal' | 'rose' | 'green' | 'amber'
+  compPath: string
+  compParams: Record<string, string>
+  unit: string
+  href: string
+}
+
+const KPI_QUERIES: KPIQuery[] = [
   {
     path: '/chapter3/fertility-rate',
     params: { rate_type: 'observed', region: '1' },
