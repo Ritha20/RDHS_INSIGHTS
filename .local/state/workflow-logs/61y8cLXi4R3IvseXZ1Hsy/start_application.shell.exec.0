@@ -1,0 +1,246 @@
+
+> dhs-rwanda-dashboard@0.1.0 dev
+> next dev -p 5000 --hostname 0.0.0.0
+
+[1G[0K   [1m[38;2;173;127;168m▲ Next.js 15.5.19[39m[22m
+   - Local:        http://localhost:5000
+   - Network:      http://0.0.0.0:5000
+   - Environments: .env.local
+
+ [32m[1m✓[22m[39m Starting...
+ [32m[1m✓[22m[39m Ready in 1729ms
+ [37m[1m○[22m[39m Compiling / ...
+ [32m[1m✓[22m[39m Compiled / in 11.9s (2529 modules)
+ GET / [32m200[39m in 12781ms
+ GET / [32m200[39m in 1137ms
+ [33m[1m⚠[22m[39m Blocked cross-origin request from 127.0.0.1 to /_next/* resource. To allow this, configure "allowedDevOrigins" in next.config
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET / [32m200[39m in 153ms
+ [37m[1m○[22m[39m Compiling /chapters/[chapter] ...
+ [32m[1m✓[22m[39m Compiled /chapters/[chapter] in 1886ms (2564 modules)
+ GET / [32m200[39m in 71ms
+ GET /chapters/child-health [32m200[39m in 3098ms
+ GET /chapters/child-health [32m200[39m in 160ms
+ GET /chapters/child-health [32m200[39m in 114ms
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m,
+  page: [32m'/'[39m
+}
+ [37m[1m○[22m[39m Compiling /_error ...
+ HEAD / [31m500[39m in 3058ms
+ [32m[1m✓[22m[39m Compiled /_error in 4.6s (2903 modules)
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+[Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m,
+  page: [32m'/'[39m
+}
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+[Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m,
+  page: [32m'/'[39m
+}
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+[Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m,
+  page: [32m'/'[39m
+}
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+[Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+ GET / [31m500[39m in 1560ms
+ GET / [31m500[39m in 447ms
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m,
+  page: [32m'/'[39m
+}
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+[Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m,
+  page: [32m'/'[39m
+}
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+[Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+ GET / [31m500[39m in 1054ms
+ GET / [31m500[39m in 286ms
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m,
+  page: [32m'/'[39m
+}
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+[Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m,
+  page: [32m'/'[39m
+}
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+[Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+ GET / [31m500[39m in 1062ms
+ GET / [31m500[39m in 292ms
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m,
+  page: [32m'/'[39m
+}
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+[Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m,
+  page: [32m'/'[39m
+}
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+[Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+ GET / [31m500[39m in 1208ms
+ GET / [31m500[39m in 372ms
+ [32m[1m✓[22m[39m Compiled in 3.5s (2821 modules)
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m,
+  page: [32m'/chapters/child-health'[39m
+}
+ [31m[1m⨯[22m[39m Failed to generate static paths for /chapters/[chapter]:
+[Error: Cannot find module './vendor-chunks/recharts.js'
+Require stack:
+- /home/runner/workspace/frontend/.next/server/webpack-runtime.js
+- /home/runner/workspace/frontend/.next/server/app/chapters/[chapter]/page.js
+- /home/runner/workspace/frontend/node_modules/next/dist/server/require.js
+- /home/runner/workspace/frontend/node_modules/next/dist/server/load-components.js
+- /home/runner/workspace/frontend/node_modules/next/dist/build/utils.js
+- /home/runner/workspace/frontend/node_modules/next/dist/server/dev/static-paths-worker.js
+- /home/runner/workspace/frontend/node_modules/next/dist/compiled/jest-worker/processChild.js] {
+  type: [32m'Error'[39m,
+  code: [32m'MODULE_NOT_FOUND'[39m,
+  requireStack: [36m[Array][39m
+}
+ [37m[1m○[22m[39m Compiling /_error ...
+ [32m[1m✓[22m[39m Compiled /_error in 1330ms (2903 modules)
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+[Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m,
+  page: [32m'/chapters/child-health'[39m
+}
+ [31m[1m⨯[22m[39m [Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+[Error: ENOENT: no such file or directory, open '/home/runner/workspace/frontend/.next/routes-manifest.json'] {
+  errno: [33m-2[39m,
+  code: [32m'ENOENT'[39m,
+  syscall: [32m'open'[39m,
+  path: [32m'/home/runner/workspace/frontend/.next/routes-manifest.json'[39m
+}
+ GET /chapters/child-health [31m500[39m in 2880ms
+ GET /chapters/child-health [31m500[39m in 288ms

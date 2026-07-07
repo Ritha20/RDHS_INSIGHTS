@@ -1,0 +1,16 @@
+/home/runner/workspace/.pythonlibs/lib/python3.12/site-packages/fastapi/middleware/wsgi.py:1: StarletteDeprecationWarning: starlette.middleware.wsgi is deprecated and will be removed in a future release. Please refer to https://github.com/abersheeran/a2wsgi as a replacement.
+  from starlette.middleware.wsgi import (
+2026-07-06 21:49:26,967 INFO     Starting server at tcp:port=8000:interface=0.0.0.0
+2026-07-06 21:49:26,968 INFO     HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2026-07-06 21:49:26,969 INFO     Configuring endpoint tcp:port=8000:interface=0.0.0.0
+2026-07-06 21:49:26,971 INFO     Listening on TCP address 0.0.0.0:8000
+127.0.0.1:59176 - - [06/Jul/2026:21:49:46] "GET /api/chapter3/fertility-rate?rate_type=observed&region=1" 200 857
+127.0.0.1:59190 - - [06/Jul/2026:21:49:46] "GET /api/chapter5/delivery-assistance?provider=skilled&region=1" 200 745
+127.0.0.1:59204 - - [06/Jul/2026:21:49:46] "GET /api/chapter7/stunting?severity=any&region=1" 200 843
+127.0.0.1:59206 - - [06/Jul/2026:21:49:46] "GET /api/chapter4/contraception-use?method=modern&marital_status=married&region=1" 200 768
+127.0.0.1:59210 - - [06/Jul/2026:21:49:46] "GET /api/chapter9/hiv-testing?gender=female&timing=ever&region=1" 200 771
+127.0.0.1:59214 - - [06/Jul/2026:21:49:46] "GET /api/chapter3/fertility-rate?rate_type=observed&region=2" 200 1516
+127.0.0.1:59222 - - [06/Jul/2026:21:49:47] "GET /api/chapter3/fertility-rate?rate_type=observed&region=3" 200 1396
+127.0.0.1:59224 - - [06/Jul/2026:21:49:47] "GET /api/chapter3/fertility-rate?rate_type=observed&region=4" 200 1129
+127.0.0.1:59228 - - [06/Jul/2026:21:49:47] "GET /api/chapter3/fertility-rate?rate_type=observed&region=1" 200 857
+127.0.0.1:59234 - - [06/Jul/2026:21:49:47] "GET /api/chapter3/fertility-rate?rate_type=observed&region=5" 200 1395

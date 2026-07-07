@@ -5,6 +5,7 @@ stack = "BEST_EFFORT_FALLBACK"
 
 [nix]
 channel = "stable-25_05"
+packages = ["glibcLocales", "libiconv", "libxcrypt", "readstat", "zlib"]
 
 [workflows]
 runButton = "Project"
@@ -43,7 +44,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd backend && daphne -b 0.0.0.0 -p 8000 rdhs_viz.asgi:application"
+args = "cd backend && python -m daphne -b 0.0.0.0 -p 8000 rdhs_viz.asgi:application"
 waitForPort = 8000
 
 [[ports]]
@@ -56,4 +57,4 @@ externalPort = 8000
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "--worker-class=uvicorn.workers.UvicornWorker", "app.main:app"]
+run = ["sh", "-c", "cd backend && python -m daphne -b 0.0.0.0 -p 8000 rdhs_viz.asgi:application"]

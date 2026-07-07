@@ -1,0 +1,24 @@
+
+> dhs-rwanda-dashboard@0.1.0 dev
+> next dev -p 5000 --hostname 0.0.0.0
+
+[1G[0K   [1m[38;2;173;127;168m▲ Next.js 15.5.19[39m[22m
+   - Local:        http://localhost:5000
+   - Network:      http://0.0.0.0:5000
+   - Environments: .env.local
+
+ [32m[1m✓[22m[39m Starting...
+ [32m[1m✓[22m[39m Ready in 2s
+ [37m[1m○[22m[39m Compiling / ...
+ [32m[1m✓[22m[39m Compiled /chapters/[chapter] in 20.8s (2564 modules)
+ GET / [32m200[39m in 21893ms
+ GET /chapters/child-health [32m200[39m in 15027ms
+ [33m[1m⚠[22m[39m Blocked cross-origin request from 127.0.0.1 to /_next/* resource. To allow this, configure "allowedDevOrigins" in next.config
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET /chapters/child-health [32m200[39m in 367ms
+ GET / [32m200[39m in 408ms
+ GET /chapters/child-health [32m200[39m in 225ms
+ GET /chapters/gender [32m200[39m in 339ms
+ GET /chapters/household [32m200[39m in 257ms
+ GET /chapters/fertility [32m200[39m in 138ms
+ GET /chapters/family-planning [32m200[39m in 172ms

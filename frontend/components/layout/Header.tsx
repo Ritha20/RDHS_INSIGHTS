@@ -36,7 +36,7 @@ export default function Header({ title, subtitle, onDownloadCSV }: HeaderProps) 
           </button>
         )}
         <a
-          href="https://nisr-askdhs-intelligence.base44.app"
+          href="https://askpro-chat.vercel.app/"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Open ASK DHS"
